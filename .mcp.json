@@ -1,0 +1,38 @@
+{
+  "mcpServers": {
+    "livetennisapi-mcp": {
+      "command": "npx",
+      "args": ["-y", "livetennisapi-mcp"],
+      "env": { "LIVETENNISAPI_KEY": "${LIVETENNISAPI_KEY}" }
+    },
+    "sportapi": {
+      "command": "uvx",
+      "args": ["sportapi-mcp"],
+      "env": { "SPORTAPI_KEY": "${SPORTAPI_KEY}" }
+    },
+    "altsportsdata": {
+      "command": "npx",
+      "args": ["-y", "altsportsdata-mcp"],
+      "env": { "ALTSPORTSDATA_API_KEY": "${ALTSPORTSDATA_API_KEY}" }
+    },
+    "betfair-edge": {
+      "command": "npx",
+      "args": ["-y", "betfair-edge-mcp"],
+      "env": {
+        "BETFAIR_USERNAME": "${BETFAIR_USERNAME}",
+        "BETFAIR_PASSWORD": "${BETFAIR_PASSWORD}",
+        "BETFAIR_APP_KEY": "${BETFAIR_APP_KEY}"
+      }
+    },
+    "sportscore-mcp": {
+      "command": "npx",
+      "args": ["-y", "sportscore-mcp"],
+      "env": { "SPORTSCORE_API_KEY": "${SPORTSCORE_API_KEY}" }
+    },
+    "mcp-sports-hub": {
+      "command": "npx",
+      "args": ["-y", "mcp-sports-hub"],
+      "env": { "ODDS_API_KEY": "${ODDS_API_KEY}", "RAPIDAPI_KEY": "${RAPIDAPI_KEY}" }
+    }
+  }
+}

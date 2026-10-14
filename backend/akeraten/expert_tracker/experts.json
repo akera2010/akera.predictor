@@ -1,0 +1,19 @@
+[
+  {"name": "Benoît Maylin", "sport": "tennis", "platform": "twitter", "handle": "BenoitMaylin", "url": "https://x.com/BenoitMaylin", "weight": 1.0, "lang": "fr"},
+  {"name": "Boris Becker", "sport": "tennis", "platform": "twitter", "handle": "TheBorisBecker", "url": "https://x.com/TheBorisBecker", "weight": 0.8, "lang": "en"},
+  {"name": "ProfeTenis", "sport": "tennis", "platform": "twitter", "handle": "ElProfeDelTenis", "url": "https://x.com/ElProfeDelTenis", "weight": 1.0, "lang": "es"},
+  {"name": "Rick Macci", "sport": "tennis", "platform": "twitter", "handle": "RickMacci", "url": "https://x.com/RickMacci", "weight": 0.7, "lang": "en"},
+  {"name": "Diawariste", "sport": "tennis", "platform": "twitter", "handle": "Diawariste", "url": "https://x.com/Diawariste", "weight": 0.9, "lang": "fr"},
+  {"name": "Brett Farrenkopf", "sport": "tennis", "platform": "website", "url": "https://www.cbssports.com/tennis/", "weight": 1.0, "lang": "en"},
+  {"name": "Kenny Ducey", "sport": "tennis", "platform": "website", "url": "https://www.lineups.com/tennis", "weight": 1.0, "lang": "en"},
+  {"name": "Joseph Buchdahl (12Xpert)", "sport": "tennis", "platform": "twitter", "handle": "12Xpert", "url": "http://www.tennis-data.co.uk/", "weight": 1.2, "lang": "en"},
+  {"name": "Liu Guozheng", "sport": "table_tennis", "platform": "weibo", "uid": null, "url": "https://weibo.com/", "weight": 1.2, "lang": "zh"},
+  {"name": "Adam Bobrow", "sport": "table_tennis", "platform": "instagram", "handle": "adambobrow", "url": "https://www.instagram.com/adambobrow/", "weight": 0.8, "lang": "en"},
+  {"name": "Lei Yang", "sport": "table_tennis", "platform": "website", "url": "https://www.163.com/", "weight": 1.0, "lang": "zh"},
+  {"name": "Harry Simpson", "sport": "table_tennis", "platform": "website", "url": "https://matchstat.com/table-tennis/", "weight": 1.0, "lang": "en"},
+  {"name": "VeloriumIQ", "sport": "table_tennis", "platform": "discord", "url": "discord://webhook-in", "weight": 0.9, "lang": "en"},
+  {"name": "DIVINE TIPS", "sport": "table_tennis", "platform": "twitter", "handle": "divinepredictor", "url": "https://x.com/divinepredictor", "weight": 0.8, "lang": "en"},
+  {"name": "AISetMatch", "sport": "tennis", "platform": "website", "url": "https://aisetmatch.com/", "weight": 1.0, "lang": "en"},
+  {"name": "Predixsport", "sport": "both", "platform": "website", "url": "https://predixsport.com/", "weight": 0.9, "lang": "en"},
+  {"name": "STATSCORE TipsterAPI", "sport": "both", "platform": "api", "url": "https://statscore.com/", "env": "STATSCORE_API_KEY", "weight": 1.0, "lang": "en"}
+]

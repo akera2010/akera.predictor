@@ -1,0 +1,7 @@
+[
+  {"name": "AI-Tennis-Match-Predictor", "repo": "https://github.com/VirtualHelix/AI-Tennis-Match-Predictor", "sport": "tennis", "kind": "python", "weight": 0.0},
+  {"name": "Cuda-accelerated-tennis-prediction-engine", "repo": "https://github.com/vshkuratov4/Cuda-accelerated-tennis-prediction-engine", "sport": "tennis", "kind": "python", "weight": 0.0, "note": "requires an NVIDIA GPU / CUDA toolkit"},
+  {"name": "tennis-oracle-api", "repo": "https://huggingface.co/spaces/Fabio14i/tennis-oracle-api", "sport": "tennis", "kind": "http", "env_url": "TENNIS_ORACLE_URL", "weight": 0.0},
+  {"name": "AI_CUP_2025_Table_Tennis", "repo": "https://github.com/yuchen0515/AI_CUP_2025_Table_Tennis", "sport": "table_tennis", "kind": "python", "weight": 0.0},
+  {"name": "rss-wimbledon-2025", "repo": "https://github.com/mpenn114/rss-wimbledon-2025", "sport": "tennis", "kind": "python", "weight": 0.0}
+]

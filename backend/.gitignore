@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+data/raw/
+data/raw_synthetic/
+data/*.db
+data/*.db-*
+data/tt_ratings.json
+external_repos/
+.env
