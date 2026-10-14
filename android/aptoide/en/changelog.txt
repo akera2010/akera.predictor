@@ -1,0 +1,5 @@
+0.1.0 (versionCode 1)
+• First public release of AKERATEN v.0.1.
+• Live (WebSocket), match detail, Value Bets, model analysis, Experts and Settings screens.
+• Fractional-Kelly staking, suspicious-bet warnings and local notifications (edge > 5%).
+• Offline demo mode.

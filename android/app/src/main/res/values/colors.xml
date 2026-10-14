@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="akeraten_bg">#FF060A14</color>
+    <color name="akeraten_surface">#FF0D1426</color>
+    <color name="akeraten_lime">#FFC6FF00</color>
+    <color name="akeraten_cyan">#FF00E5FF</color>
+    <color name="akeraten_orange">#FFFF8A00</color>
+    <color name="ic_launcher_background">#FF070D1C</color>
+</resources>

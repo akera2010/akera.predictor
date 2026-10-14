@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AKERATEN v.0.1</string>
+    <string name="app_author">Sandra Blanco (España | 2026)</string>
+    <string name="notif_channel_name">Alertas de value bets</string>
+    <string name="notif_channel_desc">Avisos de value bets con edge superior al 5 %</string>
+</resources>
