@@ -1,0 +1,29 @@
+# Secrets
+.env
+*.jks
+*.keystore
+keystore.properties
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+backend/data/raw/
+backend/*.db
+*.sqlite3
+
+# Cloned model repos (fetched by scripts/clone_repos.sh)
+backend/akeraten/models/repos/*/
+!backend/akeraten/models/repos/__init__.py
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+*.iml
+.DS_Store
