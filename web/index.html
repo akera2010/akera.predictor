@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AKERATEN v.0.1</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="author" content="Sandra Blanco (España | 2026)">
+<meta name="description" content="AKERATEN v.0.1 — monitor de value betting para tenis y tenis de mesa.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout: sticky terminal header → KPI strip → tab rail → section grids; drawers/modals overlay. Dark-first. */
+:root{
+  --bg:#060a12; --bg-2:#0b1220; --panel:rgba(16,24,40,.66); --panel-solid:#0e1626; --panel-2:rgba(255,255,255,.035);
+  --line:rgba(150,172,210,.13); --line-2:rgba(150,172,210,.26);
+  --text:#e9eef8; --muted:#8e9bb4; --faint:#5c6a84;
+  --tennis:#C6FF00; --tennis-bar:#C6FF00; --tennis-ink:#C6FF00; --tennis-soft:rgba(198,255,0,.13); --on-tennis:#0a1100;
+  --tt:#00E5FF; --tt-ink:#00E5FF; --tt-soft:rgba(0,229,255,.12); --tt2:#FF7A1A; --tt2-soft:rgba(255,122,26,.14);
+  --pos:#2BE38B; --pos-soft:rgba(43,227,139,.14); --neg:#FF4D6D; --neg-soft:rgba(255,77,109,.14);
+  --warn:#FFB020; --warn-soft:rgba(255,176,32,.15); --market:#9aa7c7;
+  --court:rgba(198,255,0,.06); --glow-a:rgba(198,255,0,.10); --glow-b:rgba(0,229,255,.09); --glow-c:rgba(255,122,26,.06);
+  --shadow:0 18px 50px -18px rgba(0,0,0,.7); --overlay:rgba(2,5,10,.66);
+  --f-display:"Chakra Petch","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:16px; --r-sm:10px;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#060a12; --bg-2:#0b1220; --panel:rgba(16,24,40,.66); --panel-solid:#0e1626; --text:#e9eef8; color-scheme:dark; } }
+:root[data-theme="dark"]{ --bg:#060a12; --bg-2:#0b1220; --panel:rgba(16,24,40,.66); --panel-solid:#0e1626; --text:#e9eef8; color-scheme:dark; }
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
+  --bg:#edf1f7; --bg-2:#ffffff; --panel:rgba(255,255,255,.74); --panel-solid:#ffffff; --panel-2:rgba(10,30,60,.035);
+  --line:rgba(20,40,80,.11); --line-2:rgba(20,40,80,.22);
+  --text:#0b1424; --muted:#4f5d76; --faint:#8592a8;
+  --tennis:#C6FF00; --tennis-bar:#93c400; --tennis-ink:#4a7000; --tennis-soft:rgba(120,170,0,.14); --on-tennis:#0a1100;
+  --tt:#00B8D4; --tt-ink:#00788c; --tt-soft:rgba(0,170,200,.12); --tt2:#E8620A; --tt2-soft:rgba(232,98,10,.12);
+  --pos:#0c9a58; --pos-soft:rgba(12,154,88,.12); --neg:#d42a4c; --neg-soft:rgba(212,42,76,.1);
+  --warn:#b36b00; --warn-soft:rgba(220,140,0,.14); --market:#5d6b8a;
+  --court:rgba(60,100,0,.07); --glow-a:rgba(160,220,0,.16); --glow-b:rgba(0,190,230,.12); --glow-c:rgba(255,122,26,.08);
+  --shadow:0 16px 40px -20px rgba(20,40,80,.35); --overlay:rgba(15,25,45,.4); color-scheme:light; } }
+:root[data-theme="light"]{
+  --bg:#edf1f7; --bg-2:#ffffff; --panel:rgba(255,255,255,.74); --panel-solid:#ffffff; --panel-2:rgba(10,30,60,.035);
+  --line:rgba(20,40,80,.11); --line-2:rgba(20,40,80,.22);
+  --text:#0b1424; --muted:#4f5d76; --faint:#8592a8;
+  --tennis:#C6FF00; --tennis-bar:#93c400; --tennis-ink:#4a7000; --tennis-soft:rgba(120,170,0,.14); --on-tennis:#0a1100;
+  --tt:#00B8D4; --tt-ink:#00788c; --tt-soft:rgba(0,170,200,.12); --tt2:#E8620A; --tt2-soft:rgba(232,98,10,.12);
+  --pos:#0c9a58; --pos-soft:rgba(12,154,88,.12); --neg:#d42a4c; --neg-soft:rgba(212,42,76,.1);
+  --warn:#b36b00; --warn-soft:rgba(220,140,0,.14); --market:#5d6b8a;
+  --court:rgba(60,100,0,.07); --glow-a:rgba(160,220,0,.16); --glow-b:rgba(0,190,230,.12); --glow-c:rgba(255,122,26,.08);
+  --shadow:0 16px 40px -20px rgba(20,40,80,.35); --overlay:rgba(15,25,45,.4); color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:14px/1.5 var(--f-body);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;transition:background .4s,color .4s}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--tennis-ink);outline-offset:2px;border-radius:6px}
+.num,.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* ---------- Ambient background ---------- */
+.bg-fx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-fx .blob{position:absolute;width:70vmax;height:70vmax;border-radius:50%;filter:blur(60px);opacity:1;animation:drift 26s ease-in-out infinite alternate}
+.bg-fx .b1{background:radial-gradient(circle,var(--glow-a),transparent 60%);top:-35vmax;left:-20vmax}
+.bg-fx .b2{background:radial-gradient(circle,var(--glow-b),transparent 60%);bottom:-40vmax;right:-25vmax;animation-delay:-9s}
+.bg-fx .b3{background:radial-gradient(circle,var(--glow-c),transparent 60%);top:30%;left:40%;width:40vmax;height:40vmax;animation-delay:-17s}
+.bg-fx svg{position:absolute;inset:-5% -5%;width:110%;height:110%;animation:pan 60s linear infinite alternate}
+.bg-fx svg *{stroke:var(--court);fill:none}
+@keyframes drift{to{transform:translate(8vmax,6vmax) scale(1.08)}}
+@keyframes pan{to{transform:translate(-2%,-1.5%) rotate(.4deg)}}
+
+.wrap{position:relative;z-index:1;max-width:1480px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media(min-width:900px){.wrap{padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}}
+
+/* ---------- Header ---------- */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);background:color-mix(in srgb,var(--bg) 72%,transparent);border-bottom:1px solid var(--line)}
+.hbar{display:flex;align-items:center;gap:14px;padding-block:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 auto}
+.brand svg{width:46px;height:46px;flex:none;filter:drop-shadow(0 0 14px rgba(198,255,0,.25))}
+.brand h1{margin:0;font:700 22px/1 var(--f-display);letter-spacing:.06em;display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.brand h1 small{font:600 11px/1 var(--f-mono);letter-spacing:.08em;color:var(--on-tennis);background:var(--tennis);padding:3px 6px;border-radius:5px}
+.brand .by{font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hright{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge-mode{display:inline-flex;align-items:center;gap:8px;font:700 11px/1 var(--f-mono);letter-spacing:.1em;padding:8px 12px;border-radius:999px;border:1px solid;white-space:nowrap}
+.badge-mode.demo{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 50%,transparent);background:repeating-linear-gradient(-45deg,var(--warn-soft) 0 8px,transparent 8px 16px);background-size:200% 100%;animation:stripes 6s linear infinite}
+.badge-mode.live{color:var(--pos);border-color:color-mix(in srgb,var(--pos) 50%,transparent);background:var(--pos-soft)}
+.badge-mode.wait{color:var(--muted);border-color:var(--line-2)}
+@keyframes stripes{to{background-position:100% 0}}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 0 0 currentColor;animation:pulse 1.6s infinite;flex:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,currentColor 70%,transparent)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.clock{font:500 13px/1 var(--f-mono);color:var(--muted);padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);white-space:nowrap}
+.clock b{color:var(--text);font-weight:700}
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);display:grid;place-items:center;transition:.2s}
+.icon-btn:hover{border-color:var(--line-2);background:var(--panel)}
+.icon-btn svg{width:18px;height:18px;stroke:var(--text);fill:none;stroke-width:2}
+.demo-strip{font-size:12.5px;color:var(--muted);padding:8px 0 10px;display:flex;gap:8px;align-items:center;border-top:1px dashed var(--line)}
+.demo-strip b{color:var(--warn)}
+
+/* ---------- KPIs ---------- */
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin:20px 0 6px}
+@media(max-width:1180px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+.glass{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);box-shadow:var(--shadow)}
+.kpi{padding:14px 16px 12px;position:relative;overflow:hidden;min-width:0}
+.kpi .lbl{font:600 10.5px/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
+.kpi .val{font:700 28px/1.1 var(--f-display);margin-top:8px;letter-spacing:.01em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpi .sub{font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .spark{position:absolute;right:0;top:14px;width:42%;height:34px;opacity:.85}
+.kpi::after{content:"";position:absolute;left:16px;right:16px;top:0;height:2px;border-radius:2px;background:var(--k,var(--tennis));opacity:.8}
+@media(max-width:560px){.kpi .val{font-size:23px}}
+.pos{color:var(--pos)}.neg{color:var(--neg)}.warn{color:var(--warn)}
+
+/* ---------- Tabs ---------- */
+.tabs{display:flex;gap:6px;margin:18px 0 18px;padding:5px;overflow-x:auto;scrollbar-width:none;border-radius:14px;width:max-content;max-width:100%}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;border:0;background:transparent;color:var(--muted);padding:10px 16px;border-radius:10px;font:600 13.5px/1 var(--f-display);letter-spacing:.04em;display:flex;align-items:center;gap:8px;transition:.2s;white-space:nowrap}
+.tab:hover{color:var(--text);background:var(--panel-2)}
+.tab[aria-selected="true"]{background:var(--tennis);color:var(--on-tennis);box-shadow:0 6px 24px -6px rgba(198,255,0,.55)}
+.tab .cnt{font:700 10.5px/1 var(--f-mono);padding:3px 6px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line)}
+.tab[aria-selected="true"] .cnt{background:rgba(0,0,0,.18);border-color:transparent}
+section.view{display:none;animation:fadein .35s ease}
+section.view.on{display:block}
+@keyframes fadein{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- Toolbar / filters ---------- */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.seg{display:inline-flex;padding:4px;border-radius:12px;background:var(--panel);border:1px solid var(--line);gap:2px}
+.seg button{border:0;background:transparent;padding:7px 12px;border-radius:9px;color:var(--muted);font-weight:600;font-size:13px;white-space:nowrap}
+.seg button.on{background:var(--bg-2);color:var(--text);box-shadow:0 1px 0 var(--line-2) inset,0 4px 14px -6px rgba(0,0,0,.4)}
+.field{display:flex;align-items:center;gap:8px;padding:0 12px;height:40px;border-radius:12px;background:var(--panel);border:1px solid var(--line);min-width:0}
+.field select,.field input{background:transparent;border:0;outline:0;height:100%;min-width:0}
+.field select option{background:var(--panel-solid);color:var(--text)}
+.field.search{flex:1 1 200px;max-width:340px}
+.field.search input{width:100%}
+.field svg{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2;flex:none}
+.count-note{margin-left:auto;font:500 12px var(--f-mono);color:var(--muted)}
+@media(max-width:640px){.count-note{margin-left:0;width:100%}.field.search{max-width:none;flex-basis:100%}}
+
+/* ---------- Match cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,350px),1fr));gap:14px}
+.mcard{--bar:var(--tennis-bar);--acc:var(--tennis);--acc-ink:var(--tennis-ink);--acc-soft:var(--tennis-soft);padding:14px 14px 12px;cursor:pointer;position:relative;overflow:hidden;transition:transform .25s,border-color .25s,box-shadow .25s;min-width:0}
+.mcard.tt{--bar:var(--tt);--acc:var(--tt);--acc-ink:var(--tt-ink);--acc-soft:var(--tt-soft)}
+.mcard:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+.mcard::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(var(--acc),transparent)}
+.mcard.hasvalue{border-color:color-mix(in srgb,var(--acc) 38%,transparent);box-shadow:var(--shadow),0 0 0 1px color-mix(in srgb,var(--acc) 15%,transparent),0 0 40px -18px var(--acc)}
+.mcard.finished{opacity:.72}
+.mhead{display:flex;align-items:center;gap:8px;margin-bottom:10px;min-width:0}
+.chip{display:inline-flex;align-items:center;gap:5px;font:700 10px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 7px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.chip.sport{color:var(--acc-ink);background:var(--acc-soft);border-color:transparent}
+.mhead .tour{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.live-tag{display:inline-flex;align-items:center;gap:6px;font:700 10.5px/1 var(--f-mono);letter-spacing:.1em;color:var(--neg);white-space:nowrap}
+.status-tag{font:600 11px/1 var(--f-mono);color:var(--muted);white-space:nowrap}
+.sb{border-radius:12px;background:var(--panel-2);border:1px solid var(--line);padding:4px 0}
+.sb.flash{animation:sbflash .9s ease}
+@keyframes sbflash{0%{box-shadow:0 0 0 0 var(--acc);border-color:var(--acc)}100%{box-shadow:0 0 0 10px transparent}}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:6px 10px;min-height:38px}
+.prow + .prow{border-top:1px solid var(--line)}
+.pname{display:flex;align-items:center;gap:7px;min-width:0}
+.pname .fl{font-size:17px;line-height:1;flex:none}
+.pname .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.pname .rk{font:500 10.5px var(--f-mono);color:var(--faint);flex:none}
+.pname.win .nm{color:var(--acc-ink)}
+.serve{width:9px;height:9px;border-radius:50%;flex:none;background:radial-gradient(circle at 35% 30%,#f4ffb0,var(--tennis) 55%,#7aa000);box-shadow:0 0 8px var(--tennis)}
+.tt .serve{background:radial-gradient(circle at 35% 30%,#fff,#ffd8b8 50%,var(--tt2));box-shadow:0 0 8px var(--tt2)}
+.serve.off{visibility:hidden}
+.sets{display:flex;gap:2px}
+.sets span{width:22px;text-align:center;font:600 14px/1 var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.sets span.w{color:var(--text)}
+.sets span.cur{color:var(--acc-ink)}
+.sets span sup{font-size:8px;margin-left:1px}
+.pts{min-width:40px;height:28px;display:grid;place-items:center;border-radius:7px;font:700 14px/1 var(--f-mono);background:var(--acc-soft);color:var(--acc-ink);padding:0 6px}
+.pts.empty{background:transparent}
+.sb.flash .pts{animation:ptsflash .9s ease}
+@keyframes ptsflash{0%{background:var(--acc);color:var(--on-tennis);transform:scale(1.12)}100%{}}
+.probwrap{margin-top:12px}
+.problbl{display:flex;justify-content:space-between;font:500 11px/1 var(--f-mono);color:var(--muted);margin-bottom:6px;gap:8px}
+.problbl b{color:var(--text)}
+.probbar{position:relative;height:10px;border-radius:999px;background:color-mix(in srgb,var(--muted) 22%,transparent);overflow:visible}
+.probbar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,color-mix(in srgb,var(--bar) 55%,transparent),var(--bar));transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.probbar .mk{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;border-radius:2px;background:var(--text);box-shadow:0 0 0 2px var(--bg);transition:left .8s cubic-bezier(.2,.8,.2,1)}
+.probbar .mid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--line-2)}
+.mfoot{display:flex;gap:8px;margin-top:12px;align-items:stretch}
+.odd{flex:1;display:flex;justify-content:space-between;align-items:center;gap:6px;padding:8px 10px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);min-width:0}
+.odd .who{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.odd .o{font:700 15px/1 var(--f-mono);display:flex;align-items:center;gap:4px}
+.odd.val{border-color:var(--acc);background:var(--acc-soft)}
+.odd.val .o{color:var(--acc-ink)}
+.arr{font-size:9px}.arr.up{color:var(--pos)}.arr.dn{color:var(--neg)}
+.vflag{position:absolute;top:12px;right:12px}
+.vbadge{display:inline-flex;align-items:center;gap:5px;font:700 10.5px/1 var(--f-mono);letter-spacing:.06em;padding:5px 8px;border-radius:999px;background:var(--acc);color:var(--on-tennis);white-space:nowrap;box-shadow:0 0 18px -4px var(--acc)}
+.vbadge.sus{background:var(--warn);color:#1a1000;box-shadow:0 0 18px -4px var(--warn)}
+.empty-state{padding:40px 20px;text-align:center;color:var(--muted);grid-column:1/-1}
+.empty-state b{display:block;font:600 16px var(--f-display);color:var(--text);margin-bottom:6px}
+
+/* ---------- Value bets ---------- */
+.vb-head,.vbrow{display:grid;grid-template-columns:40px minmax(0,2fr) minmax(0,1.25fr) 104px 96px 104px 96px 150px;gap:14px;align-items:center}
+.vb-head{padding:0 18px 8px;font:600 10.5px/1.2 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.vblist{display:flex;flex-direction:column;gap:10px}
+.vbrow{padding:14px 18px;position:relative;overflow:hidden;--acc:var(--tennis);--acc-ink:var(--tennis-ink);--acc-soft:var(--tennis-soft);transition:border-color .2s,transform .2s}
+.vbrow.tt{--acc:var(--tt);--acc-ink:var(--tt-ink);--acc-soft:var(--tt-soft)}
+.vbrow:hover{border-color:color-mix(in srgb,var(--acc) 40%,transparent)}
+.vbrow.sus{border-color:color-mix(in srgb,var(--warn) 45%,transparent);background:linear-gradient(90deg,var(--warn-soft),transparent 40%),var(--panel)}
+.vbrow.new{animation:newrow 1.6s ease}
+@keyframes newrow{0%{box-shadow:0 0 0 2px var(--acc)}100%{}}
+.rank{font:700 18px/1 var(--f-display);color:var(--faint)}
+.vbm{min-width:0}
+.vbm .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vbm .s{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.sel{min-width:0}
+.sel .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sel .b{font:500 12px var(--f-mono);color:var(--muted);margin-top:3px}
+.sel .b b{color:var(--acc-ink);font-size:14px}
+.mvi{font:500 12px/1.5 var(--f-mono);color:var(--muted)}
+.mvi b{color:var(--text)}
+.heat{display:inline-flex;flex-direction:column;align-items:flex-start;gap:4px}
+.heat .e{font:700 17px/1 var(--f-mono);padding:6px 9px;border-radius:9px;color:#06110a}
+.heat .bar{width:76px;height:4px;border-radius:4px;background:var(--line);overflow:hidden}
+.heat .bar i{display:block;height:100%;border-radius:4px}
+.stake{font:700 16px/1 var(--f-mono)}
+.stake small{display:block;font:500 11px var(--f-mono);color:var(--muted);margin-top:4px}
+.conf{display:inline-flex;align-items:center;gap:6px;font:700 10.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:6px 9px;border-radius:999px;border:1px solid}
+.conf i{display:flex;gap:2px}.conf i b{width:4px;height:10px;border-radius:2px;background:currentColor;opacity:.25}.conf i b.on{opacity:1}
+.conf.alta{color:var(--pos);border-color:color-mix(in srgb,var(--pos) 40%,transparent);background:var(--pos-soft)}
+.conf.media{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent);background:var(--warn-soft)}
+.conf.baja{color:var(--neg);border-color:color-mix(in srgb,var(--neg) 40%,transparent);background:var(--neg-soft)}
+.susp{display:inline-flex;align-items:center;gap:5px;font:700 10px/1 var(--f-mono);letter-spacing:.08em;color:#1a1000;background:var(--warn);padding:4px 7px;border-radius:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 14px;border-radius:10px;border:1px solid var(--line-2);background:var(--panel-2);font-weight:600;font-size:13px;transition:.2s;white-space:nowrap}
+.btn:hover{border-color:var(--acc,var(--tennis));color:var(--acc-ink,var(--tennis-ink))}
+.btn.primary{background:var(--tennis);color:var(--on-tennis);border-color:transparent}
+.btn.primary:hover{filter:brightness(1.08);color:var(--on-tennis);box-shadow:0 8px 24px -8px rgba(198,255,0,.6)}
+.btn.ghost{background:transparent}
+.vbrow .btn{background:var(--acc-soft);border-color:color-mix(in srgb,var(--acc) 35%,transparent);color:var(--acc-ink)}
+.lbl-m{display:none;font:600 9.5px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:5px}
+@media(max-width:1100px){
+  .vb-head{display:none}
+  .vbrow{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 14px;padding:14px}
+  .vbrow .rank{position:absolute;top:14px;right:14px;font-size:14px}
+  .vbrow .vbm{grid-column:1/-1;padding-right:36px}
+  .vbrow .sel{grid-column:span 2}
+  .vbrow .mvi{grid-column:span 2}
+  .vbrow .act{grid-column:1/-1}
+  .vbrow .act .btn{width:100%}
+  .lbl-m{display:block}
+}
+@media(max-width:520px){ .vbrow{grid-template-columns:repeat(2,minmax(0,1fr))} .vbrow .sel,.vbrow .mvi{grid-column:span 1} }
+.vb-summary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.vb-summary .pill{padding:8px 12px;border-radius:10px;background:var(--panel);border:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.vb-summary .pill b{color:var(--text);font-family:var(--f-mono)}
+
+/* ---------- Panels / charts ---------- */
+.panel{padding:18px;min-width:0}
+.panel h3{margin:0 0 4px;font:600 15px/1.2 var(--f-display);letter-spacing:.04em;text-transform:uppercase;text-wrap:balance}
+.panel .hint{font-size:12px;color:var(--muted);margin:0 0 14px}
+.cols{display:grid;gap:14px}
+.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.c3{grid-template-columns:2fr 1fr}
+@media(max-width:900px){.c2,.c3{grid-template-columns:minmax(0,1fr)}}
+.chart{position:relative;width:100%;height:var(--h,210px);margin-top:6px}
+.chart svg{position:absolute;inset:0 0 22px 44px;width:calc(100% - 44px);height:calc(100% - 22px);overflow:visible}
+.chart .yl{position:absolute;left:0;width:38px;text-align:right;font:500 10.5px/1 var(--f-mono);color:var(--faint);transform:translateY(-50%)}
+.chart .xl{position:absolute;bottom:0;font:500 10.5px/1 var(--f-mono);color:var(--faint);transform:translateX(-50%);white-space:nowrap}
+.chart .xl.first{transform:none}.chart .xl.last{transform:translateX(-100%)}
+.chart .gl{stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke}
+.chart .gl.mid{stroke:var(--line-2);stroke-dasharray:4 4}
+.chart .ln{fill:none;stroke-width:2.2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.chart .hl{stroke:var(--muted);stroke-width:1;vector-effect:non-scaling-stroke;stroke-dasharray:3 3}
+.chart .end{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;border:2px solid var(--bg);box-shadow:0 0 12px currentColor}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.legend i.dash{background:repeating-linear-gradient(90deg,currentColor 0 4px,transparent 4px 7px)!important}
+#tip{position:fixed;z-index:200;pointer-events:none;padding:8px 10px;border-radius:10px;background:var(--panel-solid);border:1px solid var(--line-2);font:500 12px/1.5 var(--f-mono);box-shadow:var(--shadow);opacity:0;transition:opacity .12s;min-width:120px}
+#tip .tt-row{display:flex;justify-content:space-between;gap:12px}
+.bars{display:flex;flex-direction:column;gap:10px}
+.brow{display:grid;grid-template-columns:96px minmax(0,1fr) 56px;gap:10px;align-items:center;font-size:13px}
+.brow .bn{color:var(--muted);font-weight:500}
+.brow .bt{position:relative;height:12px;border-radius:999px;background:color-mix(in srgb,var(--muted) 16%,transparent)}
+.brow .bt i{position:absolute;inset:0 auto 0 0;border-radius:999px;background:var(--c,var(--tennis));transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.brow .bt .mk{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--text);opacity:.8}
+.brow .bv{font:700 13px var(--f-mono);text-align:right}
+.brow.ens .bn{color:var(--text);font-weight:700}
+.brow.ens .bt{height:16px}
+.hist{display:flex;align-items:flex-end;gap:4px;height:170px;padding-top:10px;border-bottom:1px solid var(--line-2)}
+.hist div{flex:1;border-radius:5px 5px 0 0;position:relative;min-height:2px;transition:height .6s}
+.hist-x{display:flex;justify-content:space-between;font:500 10.5px var(--f-mono);color:var(--faint);margin-top:6px}
+
+/* ---------- Experts ---------- */
+.ecard{padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.etop{display:flex;gap:14px;align-items:center}
+.ring{position:relative;width:76px;height:76px;flex:none}
+.ring svg{width:76px;height:76px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:7}
+.ring .bgc{stroke:color-mix(in srgb,var(--muted) 18%,transparent)}
+.ring .fg{stroke-linecap:round;transition:stroke-dashoffset 1s}
+.ring .rv{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font:700 16px/1 var(--f-mono)}
+.ring .rv small{display:block;font:600 8.5px var(--f-mono);letter-spacing:.1em;color:var(--muted);margin-top:3px}
+.ename{font:600 17px/1.2 var(--f-display);letter-spacing:.02em}
+.emeta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.estats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.estats div{padding:9px 10px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line)}
+.estats span{display:block;font:600 9.5px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.estats b{display:block;font:700 15px/1 var(--f-mono);margin-top:6px}
+.wbar{height:6px;border-radius:6px;background:color-mix(in srgb,var(--muted) 16%,transparent);overflow:hidden}
+.wbar i{display:block;height:100%;background:linear-gradient(90deg,var(--tt),var(--tennis))}
+.picks{display:flex;flex-direction:column;gap:6px}
+.pick{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:12.5px;padding:7px 9px;border-radius:9px;background:var(--panel-2)}
+.pick .r{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font:700 11px var(--f-mono)}
+.pick .r.ok{background:var(--pos-soft);color:var(--pos)}.pick .r.ko{background:var(--neg-soft);color:var(--neg)}.pick .r.pe{background:var(--warn-soft);color:var(--warn)}
+.pick .m{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.pick .m b{font-weight:600}
+.pick .c{font:600 11px var(--f-mono);color:var(--muted)}
+
+/* ---------- Settings ---------- */
+.sgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media(max-width:900px){.sgrid{grid-template-columns:minmax(0,1fr)}}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.srow:first-of-type{border-top:0}
+.srow label{font-weight:600}
+.srow .d{grid-column:1/-1;font-size:12px;color:var(--muted)}
+.srow output,.srow .ov{font:700 14px var(--f-mono);color:var(--tennis-ink)}
+.srow input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--tennis)}
+input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:6px;background:color-mix(in srgb,var(--muted) 22%,transparent);outline-offset:6px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--tennis);border:3px solid var(--bg);box-shadow:0 0 0 1px var(--tennis),0 0 14px rgba(198,255,0,.5)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--tennis);border:3px solid var(--bg)}
+.inp{height:40px;border-radius:10px;border:1px solid var(--line-2);background:var(--panel-2);padding:0 12px;width:150px;font-family:var(--f-mono);font-weight:700}
+.presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:6px}
+@media(max-width:520px){.presets{grid-template-columns:minmax(0,1fr)}}
+.preset{text-align:left;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);transition:.2s}
+.preset b{display:block;font:600 14px var(--f-display);letter-spacing:.04em;text-transform:uppercase}
+.preset span{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+.preset.on{border-color:var(--tennis);background:var(--tennis-soft);box-shadow:0 0 0 1px var(--tennis) inset}
+.switch{position:relative;width:46px;height:26px;flex:none}
+.switch input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.switch span{position:absolute;inset:0;border-radius:999px;background:color-mix(in srgb,var(--muted) 30%,transparent);transition:.2s;pointer-events:none}
+.switch span::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--text);transition:.2s}
+.switch input:checked + span{background:var(--tennis)}
+.switch input:checked + span::after{left:23px;background:var(--on-tennis)}
+.switch input:focus-visible + span{outline:2px solid var(--tennis-ink);outline-offset:2px}
+.sources{display:flex;flex-direction:column;gap:8px}
+.src{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);font-size:13px}
+.src .st{font:700 10.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
+.sactions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.formula{font:500 12.5px/1.8 var(--f-mono);color:var(--muted);padding:12px 14px;border-radius:10px;background:var(--panel-2);border:1px dashed var(--line-2);overflow-x:auto}
+.formula b{color:var(--text)}
+
+/* ---------- Overlays ---------- */
+.overlay{position:fixed;inset:0;z-index:100;background:var(--overlay);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;z-index:110;top:0;right:0;bottom:0;width:min(640px,100%);background:var(--bg-2);border-left:1px solid var(--line-2);transform:translateX(102%);transition:transform .35s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;box-shadow:-30px 0 80px -30px rgba(0,0,0,.6);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.open{transform:none}
+.modal{position:fixed;z-index:110;left:50%;top:50%;width:min(1020px,calc(100% - 24px));max-height:calc(100% - 32px);background:var(--bg-2);border:1px solid var(--line-2);border-radius:20px;transform:translate(-50%,-46%) scale(.97);opacity:0;pointer-events:none;transition:.3s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;box-shadow:0 40px 120px -30px rgba(0,0,0,.7)}
+.modal.open{transform:translate(-50%,-50%);opacity:1;pointer-events:auto}
+.ov-head{display:flex;align-items:flex-start;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.ov-head .ttl{flex:1;min-width:0}
+.ov-head h2{margin:0;font:700 19px/1.25 var(--f-display);letter-spacing:.02em;text-wrap:balance}
+.ov-head .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.ov-body{overflow-y:auto;padding:18px 20px 24px;display:flex;flex-direction:column;gap:14px;overscroll-behavior:contain}
+.ov-body .panel{background:var(--panel-2);box-shadow:none;backdrop-filter:none}
+.bigsb{--acc:var(--tennis);--acc-ink:var(--tennis-ink);--acc-soft:var(--tennis-soft)}
+.bigsb.tt{--acc:var(--tt);--acc-ink:var(--tt-ink);--acc-soft:var(--tt-soft)}
+.bigsb .prow{min-height:48px}.bigsb .pname .nm{font-size:16px}.bigsb .sets span{width:26px;font-size:16px}.bigsb .pts{min-width:52px;height:34px;font-size:16px}
+.h2h{display:flex;align-items:center;gap:12px}
+.h2h .n{font:700 28px/1 var(--f-display)}
+.h2h .bar{flex:1;height:12px;border-radius:999px;overflow:hidden;display:flex;background:var(--line)}
+.h2h .bar i{display:block;height:100%}
+.form{display:flex;gap:4px;flex-wrap:wrap}
+.form span{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;font:700 11px var(--f-mono)}
+.form .W{background:var(--pos-soft);color:var(--pos)}.form .L{background:var(--neg-soft);color:var(--neg)}
+.stbl{width:100%;border-collapse:collapse;font-size:13px}
+.stbl td{padding:8px 4px;border-top:1px solid var(--line)}
+.stbl td:first-child,.stbl td:last-child{font:700 13px var(--f-mono);width:70px}
+.stbl td:last-child{text-align:right}
+.stbl td:nth-child(2){text-align:center;color:var(--muted)}
+.stbl .sbar{display:flex;height:4px;margin-top:5px;border-radius:4px;overflow:hidden;background:var(--line)}
+.explain{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.explain li{position:relative;padding-left:20px;font-size:13.5px;line-height:1.55}
+.explain li::before{content:"";position:absolute;left:2px;top:7px;width:8px;height:8px;border-radius:50%;background:var(--tennis);box-shadow:0 0 8px var(--tennis)}
+.explain li.w::before{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+.calc{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media(max-width:640px){.calc{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.calc label{display:flex;flex-direction:column;gap:6px;font:600 10px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.calc input,.calc select{height:40px;border-radius:10px;border:1px solid var(--line-2);background:var(--bg);padding:0 10px;font:700 14px var(--f-mono);width:100%;min-width:0}
+.calc-out{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+@media(max-width:640px){.calc-out{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.calc-out div{padding:12px;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
+.calc-out span{display:block;font:600 9.5px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.calc-out b{display:block;font:700 19px/1 var(--f-mono);margin-top:8px}
+.warnbox{display:flex;gap:10px;padding:12px 14px;border-radius:12px;background:var(--warn-soft);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);color:var(--text);font-size:13px;align-items:flex-start}
+.warnbox b{color:var(--warn)}
+.mcdist{display:flex;flex-direction:column;gap:8px}
+.skel{height:14px;border-radius:6px;background:linear-gradient(90deg,var(--line),var(--line-2),var(--line));background-size:200% 100%;animation:sk 1.2s infinite}
+@keyframes sk{to{background-position:-200% 0}}
+
+/* ---------- Toasts ---------- */
+#toasts{position:fixed;z-index:150;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100% - 32px));pointer-events:none}
+.toast{pointer-events:auto;display:flex;gap:12px;padding:12px 14px;border-radius:14px;background:var(--panel-solid);border:1px solid var(--line-2);box-shadow:var(--shadow);animation:tin .45s cubic-bezier(.2,.9,.2,1.2);cursor:pointer;position:relative;overflow:hidden}
+.toast::after{content:"";position:absolute;left:0;bottom:0;height:2px;background:var(--tc,var(--tennis));animation:tbar 6s linear forwards}
+.toast .ti{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none;background:var(--tc,var(--tennis));color:var(--on-tennis);font:700 15px var(--f-display)}
+.toast b{display:block;font:600 13.5px/1.3 var(--f-display);letter-spacing:.02em}
+.toast span{font-size:12.5px;color:var(--muted)}
+.toast.out{animation:tout .3s forwards}
+@keyframes tin{from{opacity:0;transform:translateX(40px)}}
+@keyframes tout{to{opacity:0;transform:translateX(40px)}}
+@keyframes tbar{from{width:100%}to{width:0}}
+
+/* ---------- Footer ---------- */
+footer{position:relative;z-index:1;margin-top:40px;border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 80%,transparent)}
+.fin{display:flex;gap:16px;justify-content:space-between;align-items:center;flex-wrap:wrap;padding-block:22px 28px}
+.disc{display:flex;gap:12px;align-items:center;max-width:720px}
+.disc .p18{flex:none;width:42px;height:42px;border-radius:50%;border:2px solid var(--neg);display:grid;place-items:center;font:700 13px var(--f-display);color:var(--neg)}
+.disc p{margin:0;font-size:13px;color:var(--muted)}
+.disc p b{color:var(--text)}
+.credit{font-size:12.5px;color:var(--muted);text-align:right}
+.credit b{color:var(--text);font-family:var(--f-display);letter-spacing:.06em}
+@media(max-width:560px){.vb-summary{gap:6px}.vb-summary .pill{font-size:11.5px;padding:6px 9px}.tab{padding:9px 12px;font-size:13px}.toast{padding:10px 12px}.toast .ti{width:28px;height:28px}#toasts .toast:nth-last-child(n+3){display:none}}
+@media(max-width:640px){.credit{text-align:left}.brand h1{font-size:19px}.brand svg{width:40px;height:40px}.clock .dt{display:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+    <g stroke-width="2">
+      <rect x="140" y="120" width="1320" height="660"/>
+      <rect x="140" y="200" width="1320" height="500"/>
+      <line x1="800" y1="90" x2="800" y2="810" stroke-dasharray="6 10"/>
+      <line x1="440" y1="200" x2="440" y2="700"/><line x1="1160" y1="200" x2="1160" y2="700"/>
+      <line x1="440" y1="450" x2="1160" y2="450"/>
+      <line x1="140" y1="450" x2="160" y2="450"/><line x1="1440" y1="450" x2="1460" y2="450"/>
+    </g>
+  </svg>
+</div>
+
+<header class="top">
+  <div class="wrap">
+    <div class="hbar">
+      <div class="brand">
+        <svg viewBox="0 0 48 48" role="img" aria-label="Logo AKERATEN">
+          <defs>
+            <linearGradient id="lgP" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00E5FF"/><stop offset="1" stop-color="#FF7A1A"/></linearGradient>
+            <radialGradient id="lgB" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#F2FFA8"/><stop offset=".55" stop-color="#C6FF00"/><stop offset="1" stop-color="#6E9400"/></radialGradient>
+          </defs>
+          <g transform="rotate(-38 22 22)">
+            <rect x="19.6" y="28" width="5" height="15" rx="2.2" fill="#18202f" stroke="url(#lgP)" stroke-width="1.2"/>
+            <ellipse cx="22" cy="16.5" rx="12.5" ry="14" fill="url(#lgP)"/>
+            <ellipse cx="22" cy="16.5" rx="10" ry="11.5" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
+          </g>
+          <text x="15.5" y="22" font-family="Chakra Petch, sans-serif" font-weight="700" font-size="13" fill="#06121a">A</text>
+          <circle cx="34" cy="33" r="10.5" fill="url(#lgB)" stroke="#060a12" stroke-width="1.6"/>
+          <path d="M26.2 26.6c3.6 3.3 4.4 9 1.6 13.4" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".92"/>
+          <path d="M41.9 26.2c-3.6 3.1-4.6 8.6-2.2 13.2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".92"/>
+        </svg>
+        <div style="min-width:0">
+          <h1>AKERATEN <small>v.0.1</small></h1>
+          <div class="by">Sandra Blanco (España | 2026) · Value betting · Tenis &amp; Tenis de mesa</div>
+        </div>
+      </div>
+      <div class="hright">
+        <span id="modeBadge" class="badge-mode wait"><span class="dot"></span>CONECTANDO…</span>
+        <span class="clock" id="clock"><b>--:--:--</b></span>
+        <button class="icon-btn" id="themeBtn" aria-label="Cambiar tema claro/oscuro" title="Cambiar tema">
+          <svg viewBox="0 0 24 24" id="themeIco"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="demo-strip" id="demoStrip" hidden>
+      <span class="dot" style="color:var(--warn)"></span>
+      <span><b>Modo demostración.</b> No se detecta el backend: partidos, cuotas y probabilidades se generan con el simulador integrado.</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="kpis" id="kpis"></div>
+
+  <nav class="tabs glass" role="tablist" id="tabs">
+    <button class="tab" role="tab" data-tab="live" aria-selected="true">En Vivo <span class="cnt" id="cntLive">0</span></button>
+    <button class="tab" role="tab" data-tab="value" aria-selected="false">Value Bets <span class="cnt" id="cntVB">0</span></button>
+    <button class="tab" role="tab" data-tab="experts" aria-selected="false">Expertos</button>
+    <button class="tab" role="tab" data-tab="perf" aria-selected="false">Rendimiento</button>
+    <button class="tab" role="tab" data-tab="settings" aria-selected="false">Ajustes</button>
+  </nav>
+
+  <section class="view on" id="v-live">
+    <div class="toolbar">
+      <div class="seg" id="fSport">
+        <button data-v="all" class="on">Todos</button>
+        <button data-v="tennis">🎾 Tenis</button>
+        <button data-v="table_tennis">🏓 T. mesa</button>
+      </div>
+      <label class="field"><span class="sr" style="display:none">Estado</span>
+        <select id="fStatus" aria-label="Estado">
+          <option value="all">Todos los estados</option>
+          <option value="live">En vivo</option>
+          <option value="upcoming">Próximos</option>
+          <option value="finished">Finalizados</option>
+        </select>
+      </label>
+      <label class="field">
+        <select id="fCat" aria-label="Categoría"><option value="all">Todas las categorías</option></select>
+      </label>
+      <label class="field search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="fQ" type="search" placeholder="Buscar jugador o torneo…" aria-label="Buscar">
+      </label>
+      <span class="count-note" id="mCount"></span>
+    </div>
+    <div class="grid" id="matchGrid"></div>
+  </section>
+
+  <section class="view" id="v-value">
+    <div class="vb-summary" id="vbSummary"></div>
+    <div class="vb-head"><span>#</span><span>Partido</span><span>Selección · Cuota</span><span>Modelo / Impl.</span><span>Edge</span><span>Stake</span><span>Confianza</span><span></span></div>
+    <div class="vblist" id="vbList"></div>
+  </section>
+
+  <section class="view" id="v-experts">
+    <div class="grid" id="expertGrid" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr))"></div>
+  </section>
+
+  <section class="view" id="v-perf"><div id="perfBody" class="cols"></div></section>
+
+  <section class="view" id="v-settings">
+    <div class="sgrid">
+      <div class="glass panel">
+        <h3>Gestión de banca</h3>
+        <p class="hint">Stake = bankroll × f* × fracción Kelly, con tope en el % máximo por apuesta.</p>
+        <div class="srow"><label for="sBank">Bankroll (€)</label><input class="inp" id="sBank" type="number" min="10" step="10"></div>
+        <div class="srow"><label for="sKelly">Fracción Kelly</label><output id="oKelly"></output><input type="range" id="sKelly" min="0.1" max="1" step="0.05"><span class="d">0,50 = Half-Kelly (recomendado). 1,00 = Kelly completo, más volátil.</span></div>
+        <div class="srow"><label for="sMax">Stake máximo por apuesta</label><output id="oMax"></output><input type="range" id="sMax" min="0.01" max="0.10" step="0.005"></div>
+        <h3 style="margin-top:18px">Perfil de riesgo</h3>
+        <div class="presets" id="presets">
+          <button class="preset" data-p="conservador"><b>Conservador</b><span>¼ Kelly · tope 2% · edge ≥ 3% / 4%</span></button>
+          <button class="preset" data-p="moderado"><b>Moderado</b><span>½ Kelly · tope 5% · edge ≥ 1,5% / 2,5%</span></button>
+          <button class="preset" data-p="agresivo"><b>Agresivo</b><span>¾ Kelly · tope 8% · edge ≥ 1% / 2%</span></button>
+        </div>
+      </div>
+      <div class="glass panel">
+        <h3>Umbrales de value</h3>
+        <p class="hint">Una apuesta es value cuando edge = p × cuota − 1 supera el umbral del deporte.</p>
+        <div class="srow"><label for="sTen">Edge mínimo · Tenis</label><output id="oTen"></output><input type="range" id="sTen" min="0.005" max="0.06" step="0.0025"></div>
+        <div class="srow"><label for="sTT">Edge mínimo · Tenis de mesa</label><output id="oTT"></output><input type="range" id="sTT" min="0.005" max="0.08" step="0.0025"></div>
+        <div class="srow"><label for="sSus">Umbral SOSPECHOSA</label><output id="oSus"></output><input type="range" id="sSus" min="0.04" max="0.15" step="0.005"><span class="d">Edges por encima suelen indicar error de línea, lesión o dato desfasado.</span></div>
+        <div class="srow"><label for="swTen">🎾 Monitorizar tenis</label><span class="switch"><input type="checkbox" id="swTen"><span></span></span></div>
+        <div class="srow"><label for="swTT">🏓 Monitorizar tenis de mesa</label><span class="switch"><input type="checkbox" id="swTT"><span></span></span></div>
+        <div class="sactions">
+          <button class="btn primary" id="saveSettings">Guardar ajustes</button>
+          <button class="btn ghost" id="resetSettings">Restablecer</button>
+          <span id="saveNote" class="mono" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+      </div>
+      <div class="glass panel">
+        <h3>Fórmulas</h3>
+        <p class="hint">Idénticas a las del backend.</p>
+        <div class="formula">
+          <b>implícita</b> = 1 / cuota<br>
+          <b>edge</b> = p × cuota − 1<br>
+          <b>Kelly f*</b> = (b·p − q) / b, b = cuota − 1, q = 1 − p<br>
+          <b>stake</b> = bankroll × f* × fracción (máx. tope %)<br>
+          <b>CLV</b> = cuota entrada / cuota cierre − 1
+        </div>
+      </div>
+      <div class="glass panel">
+        <h3>Fuentes de datos</h3>
+        <p class="hint" id="srcHint">Estado de los proveedores.</p>
+        <div class="sources" id="sources"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap fin">
+    <div class="disc">
+      <div class="p18">+18</div>
+      <p><b>Las apuestas conllevan riesgo. No se garantizan ganancias. Solo +18. Juega con responsabilidad.</b><br><span id="discExtra">Herramienta de análisis estadístico; no constituye asesoramiento financiero.</span></p>
+    </div>
+    <div class="credit"><b>AKERATEN v.0.1</b><br>© Sandra Blanco (España | 2026)</div>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-label="Detalle del partido" aria-hidden="true"></aside>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Análisis de value bet" aria-hidden="true"></div>
+<div id="toasts" aria-live="polite"></div>
+<div id="tip"></div>
+
+<script>
+(function(){
+'use strict';
+/* =========================================================
+   Utilities
+   ========================================================= */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => { const n = typeof v === 'string' ? parseFloat(v) : v; return (typeof n === 'number' && isFinite(n)) ? n : null; };
+const clamp = (x,a,b) => Math.max(a, Math.min(b, x));
+const pct = (x,d=1) => x==null||!isFinite(x) ? '—' : (x*100).toFixed(d).replace('.',',')+'%';
+const spct = (x,d=1) => x==null||!isFinite(x) ? '—' : (x>=0?'+':'−')+Math.abs(x*100).toFixed(d).replace('.',',')+'%';
+const odd = o => o==null ? '—' : Number(o).toFixed(2);
+const eur = (n, d) => n==null||!isFinite(n) ? '—' : n.toLocaleString('es-ES',{style:'currency',currency:'EUR',minimumFractionDigits:d??(Math.abs(n)<1000?2:0),maximumFractionDigits:d??(Math.abs(n)<1000?2:0)});
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem('akeraten.'+k); return v==null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem('akeraten.'+k, JSON.stringify(v)); }catch(e){} }
+};
+const ISO3 = {ESP:'ES',ITA:'IT',SRB:'RS',GER:'DE',DEU:'DE',USA:'US',GBR:'GB',POL:'PL',KAZ:'KZ',CHN:'CN',BRA:'BR',SWE:'SE',JPN:'JP',FRA:'FR',KOR:'KR',TPE:'TW',TWN:'TW',ROU:'RO',PUR:'PR',AUT:'AT',SLO:'SI',SVN:'SI',NOR:'NO',AUS:'AU',DEN:'DK',DNK:'DK',GRE:'GR',GRC:'GR',CZE:'CZ',NED:'NL',NLD:'NL',SUI:'CH',CHE:'CH',ARG:'AR',CAN:'CA',RUS:'RU',BLR:'BY',POR:'PT',PRT:'PT',BEL:'BE',CRO:'HR',HRV:'HR',HKG:'HK',IND:'IN',EGY:'EG'};
+function flag(cc){
+  if(!cc) return '🏳️';
+  cc = String(cc).trim().toUpperCase();
+  if(cc.length===3) cc = ISO3[cc] || '';
+  if(!/^[A-Z]{2}$/.test(cc)) return '🏳️';
+  return String.fromCodePoint(...[...cc].map(c=>127397+c.charCodeAt(0)));
+}
+function hashStr(s){ let h=2166136261; for(const c of String(s)){ h^=c.charCodeAt(0); h=Math.imul(h,16777619);} return h>>>0; }
+function rngSeed(seed){ let a=seed>>>0; return ()=>{ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const R = Math.random;
+const pick = (arr, r=R) => arr[Math.floor(r()*arr.length)];
+const gauss = (r=R) => { let u=0,v=0; while(!u)u=r(); while(!v)v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
+const timeHM = t => { const d=new Date(t); return isNaN(d) ? '—' : d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}); };
+const ago = t => { const s=Math.round((Date.now()-new Date(t).getTime())/1000); if(!isFinite(s)) return ''; if(s<60) return 'hace '+Math.max(s,0)+' s'; if(s<3600) return 'hace '+Math.round(s/60)+' min'; if(s<86400) return 'hace '+Math.round(s/3600)+' h'; return 'hace '+Math.round(s/86400)+' d'; };
+const sportName = s => s==='table_tennis' ? 'Tenis de mesa' : 'Tenis';
+const sportIco = s => s==='table_tennis' ? '🏓' : '🎾';
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* =========================================================
+   Value logic (mirrors backend)
+   ========================================================= */
+const Value = {
+  implied: o => (o && o>1) ? 1/o : null,
+  edge: (p,o) => (p==null||!o) ? null : p*o - 1,
+  kelly: (p,o) => { if(p==null||!o||o<=1) return 0; const b=o-1, q=1-p; return (b*p - q)/b; },
+  stake(bankroll, kFull, frac, maxPct){ if(!(kFull>0)) return 0; return Math.min(bankroll*kFull*frac, bankroll*maxPct); },
+  clv: (entry, closing) => (entry && closing) ? entry/closing - 1 : null,
+  threshold: (sport, s) => sport==='table_tennis' ? s.min_edge_tt : s.min_edge_tennis,
+  confLabel: sc => sc>=0.68 ? 'alta' : sc>=0.45 ? 'media' : 'baja'
+};
+const DEFAULT_SETTINGS = {bankroll:1000,kelly_fraction:0.5,min_edge_tennis:0.015,min_edge_tt:0.025,suspicious_edge:0.08,risk_profile:'moderado',max_stake_pct:0.05,sports:{tennis:true,table_tennis:true}};
+const PRESETS = {
+  conservador:{kelly_fraction:0.25,max_stake_pct:0.02,min_edge_tennis:0.03,min_edge_tt:0.04},
+  moderado:{kelly_fraction:0.5,max_stake_pct:0.05,min_edge_tennis:0.015,min_edge_tt:0.025},
+  agresivo:{kelly_fraction:0.75,max_stake_pct:0.08,min_edge_tennis:0.01,min_edge_tt:0.02}
+};
+function normSettings(s){
+  s = s||{}; const d = DEFAULT_SETTINGS;
+  let sports = s.sports;
+  if(Array.isArray(sports)) sports = {tennis:sports.includes('tennis'), table_tennis:sports.includes('table_tennis')};
+  else if(!sports || typeof sports!=='object') sports = {...d.sports};
+  else sports = {tennis: sports.tennis!==false, table_tennis: sports.table_tennis!==false};
+  return {
+    bankroll: num(s.bankroll) ?? d.bankroll, kelly_fraction: num(s.kelly_fraction) ?? d.kelly_fraction,
+    min_edge_tennis: num(s.min_edge_tennis) ?? d.min_edge_tennis, min_edge_tt: num(s.min_edge_tt) ?? d.min_edge_tt,
+    suspicious_edge: num(s.suspicious_edge) ?? d.suspicious_edge, risk_profile: s.risk_profile || d.risk_profile,
+    max_stake_pct: num(s.max_stake_pct) ?? d.max_stake_pct, sports
+  };
+}
+
+/* =========================================================
+   App state
+   ========================================================= */
+const S = {
+  mode:'init', health:null, matches:[], vbs:[], experts:[], stats:null,
+  settings: normSettings(store.get('settings', null)),
+  filters: {sport:'all', status:'all', cat:'all', q:''},
+  tab: store.get('tab','live'), hist:{}, seenVB:new Set(), firstLoad:true,
+  lastScore:{}, lastOdds:{}, oddsDir:{}, drawerId:null, modalBet:null
+};
+
+/* =========================================================
+   DEMO SIMULATOR
+   ========================================================= */
+const Sim = (function(){
+  // [name, country, elo, rank, gender]
+  const P = {
+    ATP: [['Jannik Sinner','IT',2250,1,'M'],['Carlos Alcaraz','ES',2245,2,'M'],['Novak Djokovic','RS',2150,4,'M'],['Alexander Zverev','DE',2060,3,'M'],['Taylor Fritz','US',2000,5,'M'],['Daniil Medvedev',null,1975,13,'M'],['Jack Draper','GB',2000,6,'M'],['Casper Ruud','NO',1950,10,'M'],['Alex de Minaur','AU',1975,8,'M'],['Holger Rune','DK',1930,11,'M'],['Ben Shelton','US',1960,9,'M'],['Lorenzo Musetti','IT',1965,7,'M'],['Stefanos Tsitsipas','GR',1900,19,'M'],['João Fonseca','BR',1935,24,'M'],['Jakub Menšík','CZ',1945,16,'M'],['Arthur Fils','FR',1935,14,'M']],
+    WTA: [['Aryna Sabalenka',null,2200,1,'F'],['Iga Świątek','PL',2150,2,'F'],['Coco Gauff','US',2085,3,'F'],['Elena Rybakina','KZ',2065,7,'F'],['Jasmine Paolini','IT',1960,5,'F'],['Jessica Pegula','US',2005,4,'F'],['Mirra Andreeva',null,2070,6,'F'],['Zheng Qinwen','CN',1995,8,'F'],['Madison Keys','US',1980,9,'F'],['Emma Navarro','US',1950,12,'F'],['Paula Badosa','ES',1940,15,'F'],['Jéssica Bouzas Maneiro','ES',1860,42,'F']],
+    Challenger: [['Martín Landaluce','ES',1810,118,'M'],['Pablo Carreño Busta','ES',1830,96,'M'],['Roberto Bautista Agut','ES',1835,64,'M'],['Jaume Munar','ES',1850,58,'M'],['Jesper de Jong','NL',1770,104,'M'],['Dominic Stricker','CH',1780,131,'M'],['Learner Tien','US',1880,49,'M'],['Hamad Medjedović','RS',1800,99,'M'],['Pedro Martínez','ES',1790,87,'M'],['Federico Cinà','IT',1740,172,'M']],
+    ITF: [['Rebeka Masarová','ES',1760,138,'F'],['Nuria Párrizas Díaz','ES',1730,185,'F'],['Leyre Romero Gormaz','ES',1745,160,'F'],['Marina Bassols Ribera','ES',1700,224,'F'],['Kaitlin Quevedo','ES',1710,231,'F'],['Ane Mintegi del Olmo','ES',1660,312,'F'],['Guiomar Maristany','ES',1680,286,'F'],['Lucía Cortez Llorca','ES',1640,355,'F']],
+    TT_TOP: [['Wang Chuqin','CN',2300,1,'M'],['Lin Shidong','CN',2265,2,'M'],['Hugo Calderano','BR',2215,3,'M'],['Tomokazu Harimoto','JP',2210,4,'M'],['Truls Moregård','SE',2175,6,'M'],['Felix Lebrun','FR',2195,5,'M'],['Liang Jingkun','CN',2180,8,'M'],['Fan Zhendong','CN',2205,7,'M'],['Alexis Lebrun','FR',2120,12,'M'],['Lin Yun-Ju','TW',2135,10,'M'],['Jang Woojin','KR',2110,11,'M'],['Dang Qiu','DE',2100,14,'M'],
+             ['Sun Yingsha','CN',2320,1,'F'],['Wang Manyu','CN',2255,2,'F'],['Chen Xingtong','CN',2210,4,'F'],['Wang Yidi','CN',2205,3,'F'],['Kuai Man','CN',2180,5,'F'],['Hina Hayata','JP',2220,6,'F'],['Mima Ito','JP',2150,9,'F'],['Miwa Harimoto','JP',2190,7,'F'],['Shin Yubin','KR',2130,10,'F'],['Satsuki Odo','JP',2140,8,'F']],
+    TT_ELITE: [['Patrick Franziska','DE',2060,24,'M'],['Anton Källberg','SE',2070,21,'M'],['Dimitrij Ovtcharov','DE',2060,27,'M'],['Álvaro Robles','ES',1985,44,'M'],['Darko Jorgić','SI',2080,18,'M'],['Benedikt Duda','DE',2040,29,'M'],
+               ['Bernadette Szőcs','RO',2080,15,'F'],['Adriana Díaz','PR',2050,17,'F'],['Maria Xiao','ES',1990,38,'F'],['Sofia Polcanova','AT',2040,22,'F']]
+  };
+  const CATS = {
+    tennis: {
+      ATP:{pool:'ATP',tours:['ATP 500 Viena','ATP 250 Estocolmo','ATP 250 Bruselas','ATP 250 Almaty'],surface:['Dura (indoor)','Dura'],bo:[3]},
+      WTA:{pool:'WTA',tours:['WTA 1000 Wuhan','WTA 500 Ningbo','WTA 250 Osaka'],surface:['Dura'],bo:[3]},
+      Challenger:{pool:'Challenger',tours:['Challenger Olbia','Challenger Hangzhou','Challenger Valencia'],surface:['Dura','Tierra batida'],bo:[3]},
+      ITF:{pool:'ITF',tours:['ITF W75 Les Franqueses','ITF W35 Sabadell'],surface:['Tierra batida','Dura'],bo:[3]}
+    },
+    table_tennis: {
+      WTT:{pool:'TT_TOP',tours:['WTT Champions Montpellier','WTT Star Contender Muscat','WTT Champions Frankfurt'],bo:[5,7]},
+      ITTF:{pool:'TT_TOP',tours:['ITTF Copa del Mundo Macao','ITTF Mixed Team World Cup'],bo:[7,5]},
+      'TT Elite':{pool:'TT_ELITE',tours:['TT Elite Series · Varsovia','TT Elite Series · Praga'],bo:[5]}
+    }
+  };
+  const BOOKS = ['Pinnacle','Bet365','Betfair','Bwin','Codere','Sportium','William Hill','1xBet'];
+  let matches = []; const used = new Set(); let seq = 1;
+  const other = s => 1-s;
+
+  // ---- Tennis engine
+  function tnNew(bo, server){ return {sets:[],g:[0,0],p:[0,0],tb:false,server,bo,winner:null}; }
+  function setsWon(st){ let a=0,b=0; st.sets.forEach(s=>{ s[0]>s[1]?a++:b++; }); return [a,b]; }
+  function tnEndSet(st,w){ st.sets.push([st.g[0],st.g[1]]); st.g=[0,0]; st.p=[0,0]; st.tb=false; const sw=setsWon(st); if(sw[w]>=Math.ceil(st.bo/2)) st.winner=w; }
+  function tnPoint(st,w){
+    if(st.winner!=null) return null;
+    st.p[w]++; const [a,b]=st.p;
+    if(st.tb){
+      if((a>=7||b>=7)&&Math.abs(a-b)>=2){ st.g[w]++; tnEndSet(st,w); st.server=other(st.server); return st.winner!=null?'match':'set'; }
+      if((a+b)%2===1) st.server=other(st.server);
+      return null;
+    }
+    if((a>=4||b>=4)&&Math.abs(a-b)>=2){
+      st.p=[0,0]; st.g[w]++; st.server=other(st.server);
+      const [ga,gb]=st.g;
+      if((ga>=6||gb>=6)&&Math.abs(ga-gb)>=2){ tnEndSet(st,w); return st.winner!=null?'match':'set'; }
+      if(ga===6&&gb===6) st.tb=true;
+      return 'game';
+    }
+    return null;
+  }
+  function tnPoints(st){
+    if(st.winner!=null) return null;
+    const [a,b]=st.p;
+    if(st.tb) return a+'-'+b;
+    const L=['0','15','30','40'];
+    if(a>=3&&b>=3){ if(a===b) return '40-40'; return a>b?'AD-40':'40-AD'; }
+    return L[a]+'-'+L[b];
+  }
+  // ---- Table tennis engine
+  function ttNew(bo, server){ return {sets:[],p:[0,0],server,first:server,bo,winner:null}; }
+  function ttPoint(st,w){
+    if(st.winner!=null) return null;
+    st.p[w]++; const [a,b]=st.p;
+    if((a>=11||b>=11)&&Math.abs(a-b)>=2){
+      st.sets.push([a,b]); st.p=[0,0];
+      const sw=setsWon(st); if(sw[w]>=Math.ceil(st.bo/2)){ st.winner=w; return 'match'; }
+      st.server = st.sets.length%2===0 ? st.first : other(st.first);
+      return 'set';
+    }
+    if(a>=10&&b>=10) st.server=other(st.server); else if((a+b)%2===0) st.server=other(st.server);
+    return null;
+  }
+  // ---- point probabilities
+  function pointProb(m, st){
+    const d = (m.a.elo - m.b.elo)/400;
+    if(m.sport==='tennis'){
+      const base = m.gender==='F' ? 0.565 : 0.635;
+      const pa = clamp(base + d*0.055 + m.formShift, 0.45, 0.8), pb = clamp(base - d*0.055 - m.formShift, 0.45, 0.8);
+      return st.server===0 ? pa : 1-pb;
+    }
+    const base = 0.5 + d*0.065 + m.formShift;
+    return clamp(base + (st.server===0?0.025:-0.025), 0.3, 0.7);
+  }
+  const clone = st => ({...st, sets:st.sets.map(s=>s.slice()), p:st.p.slice(), g:st.g?st.g.slice():undefined});
+  function monteCarlo(m, n){
+    let wins=0; const dist={}; const step = m.sport==='tennis'?tnPoint:ttPoint;
+    for(let i=0;i<n;i++){
+      const st=clone(m.st); let guard=0;
+      while(st.winner==null && guard++<900){ step(st, R()<pointProb(m,st)?0:1); }
+      if(st.winner===0) wins++;
+      const sw=setsWon(st); const k=sw[0]+'-'+sw[1]; dist[k]=(dist[k]||0)+1;
+    }
+    Object.keys(dist).forEach(k=>dist[k]/=n);
+    return {prob_a: clamp(wins/n, 0.005, 0.995), dist, iterations:n};
+  }
+  // ---- create
+  function choosePlayers(poolName){
+    const pool = P[poolName].filter(p=>!used.has(p[0]));
+    if(pool.length<2) return null;
+    const a = pick(pool); const cand = pool.filter(p=>p!==a && p[4]===a[4]);
+    if(!cand.length) return null;
+    const b = pick(cand); used.add(a[0]); used.add(b[0]);
+    const mk = p => ({name:p[0],country:p[1],elo:p[2]+Math.round(gauss()*15),rank:p[3]});
+    return [mk(a), mk(b), a[4]];
+  }
+  function create(sport, category, status){
+    const cfg = CATS[sport][category]; const pl = choosePlayers(cfg.pool); if(!pl) return null;
+    const id = (sport==='tennis'?'tn-':'tt-') + (1000+seq++);
+    const bo = pick(cfg.bo); const server = R()<0.5?0:1;
+    const m = { id, sport, category, tournament:pick(cfg.tours), surface: cfg.surface?pick(cfg.surface):null, bo, a:pl[0], b:pl[1], gender:pl[2],
+      status, start: Date.now() + (status==='upcoming' ? (2+R()*14)*60000 : -(10+R()*80)*60000),
+      st: sport==='tennis'?tnNew(bo,server):ttNew(bo,server),
+      formShift: gauss()*0.01, mktBias: gauss()*0.06, mlBias: gauss()*0.07, expBias: gauss()*0.14, nExp: 3+Math.floor(R()*7),
+      margin: sport==='tennis' ? 0.045+R()*0.02 : 0.055+R()*0.025, books:[pick(BOOKS),pick(BOOKS)],
+      hist:[], stats:{pts:[0,0],sp:[0,0],spw:[0,0],ace:[0,0],df:[0,0],brk:[0,0],streak:[0,0],cur:[-1,0]}, lastAt:Date.now(), finishedAt:null };
+    m.eloPre = 1/(1+Math.pow(10,(m.b.elo-m.a.elo)/400*(sport==='tennis'?1:1.15)));
+    m.mkt = null;
+    const r = rngSeed(hashStr(m.a.name+m.b.name));
+    const h2hN = Math.floor(r()*9); let ha=0; for(let i=0;i<h2hN;i++) if(r()<m.eloPre) ha++;
+    m.h2h = {a:ha,b:h2hN-ha,last: Array.from({length:Math.min(h2hN,4)},(_,i)=>({year:2026-i-Math.floor(r()*1.5), winner:r()<m.eloPre?'a':'b', score: sport==='tennis' ? pick(['6-4 6-3','7-6 6-4','6-3 4-6 6-2','6-7 7-5 6-4','6-2 6-2'],r) : pick(['3-1','3-2','3-0','4-2','4-3'],r), tournament: pick(cfg.tours,r)}))};
+    const form = (e)=> Array.from({length:10},()=> r() < clamp(0.35+(e-1800)/1200,0.3,0.88) ? 'W':'L');
+    m.formA = form(m.a.elo); m.formB = form(m.b.elo);
+    if(status!=='upcoming'){
+      const total = status==='finished' ? 9999 : (sport==='tennis' ? 20+Math.floor(R()*110) : 12+Math.floor(R()*70));
+      recompute(m, 160);
+      for(let i=0;i<total && m.st.winner==null;i++){ playPoint(m); if(i%5===4) recompute(m, 110); }
+      if(m.st.winner!=null){ m.status='finished'; m.finishedAt=Date.now()-R()*30000; }
+      // stretch fake history timestamps backwards
+      const n=m.hist.length; m.hist.forEach((h,i)=>{ h.t = Date.now() - (n-i)*25000; });
+    }
+    if(status==='upcoming'){
+      recompute(m, 220); const n=28; m.hist=[];
+      const lg=x=>Math.log(x/(1-x)), sg=x=>1/(1+Math.exp(-x)); let drift=lg(m.mkt)+gauss()*0.12;
+      for(let i=0;i<n;i++){ drift += (lg(m.mkt)-drift)*0.15 + gauss()*0.03; m.hist.push({t:Date.now()-(n-i)*120000, model_a:clamp(m.model.ens+gauss()*0.006,0.01,0.99), implied_a:sg(drift)}); }
+    }
+    recompute(m, 260);
+    matches.push(m); return m;
+  }
+  function playPoint(m){
+    const st=m.st; const srv=st.server; const p=pointProb(m,st); const w = R()<p?0:1;
+    const s=m.stats; s.pts[w]++; s.sp[srv]++; if(w===srv) s.spw[srv]++;
+    if(m.sport==='tennis'){ if(w===srv && R()<0.085) s.ace[srv]++; if(w!==srv && R()<0.07) s.df[srv]++; }
+    if(s.cur[0]===w) s.cur[1]++; else { s.cur=[w,1]; } s.streak[w]=Math.max(s.streak[w],s.cur[1]);
+    const ev = m.sport==='tennis'?tnPoint(st,w):ttPoint(st,w);
+    if(m.sport==='tennis' && ev && w!==srv) s.brk[w]++;
+    return ev;
+  }
+  function recompute(m, n){
+    const mc = (n===0 && m.mc) ? m.mc : m.st.winner!=null ? {prob_a: m.st.winner===0?1:0, dist:{[setsWon(m.st).join('-')]:1}, iterations:0} : monteCarlo(m, n);
+    m.mc = mc;
+    const lg = x => Math.log(clamp(x,0.004,0.996)/(1-clamp(x,0.004,0.996))), sg = x => 1/(1+Math.exp(-x));
+    const prog = clamp((m.stats.pts[0]+m.stats.pts[1])/(m.sport==='tennis'?(m.bo===5?260:160):(m.bo===7?110:80)), 0, 0.92);
+    const lmc = lg(mc.prob_a), lelo = lg(m.eloPre);
+    const D = clamp(lelo - lmc, -1.2, 1.2)*(1-prog);
+    const elo = m.st.winner!=null ? mc.prob_a : sg(lmc + 0.45*D);
+    const ml = m.st.winner!=null ? mc.prob_a : sg(lmc + 0.2*D + m.mlBias);
+    const exp = m.st.winner!=null ? mc.prob_a : sg(lmc + 0.35*D + m.expBias);
+    const ens = m.st.winner!=null ? mc.prob_a : sg(0.20*lg(elo) + 0.25*lg(ml) + 0.40*lmc + 0.15*lg(exp));
+    m.model = {elo, ml, mc:mc.prob_a, exp, ens};
+    const target = lmc + m.mktBias;
+    m.mkt = m.mkt==null ? sg(target) : sg(0.2*lg(m.mkt) + 0.8*target + gauss()*0.025);
+    const q = m.mkt, mg = m.margin;
+    m.odds = { a: clamp(Math.round(100/(q*(1+mg)))/100, 1.01, 41), b: clamp(Math.round(100/((1-q)*(1+mg)))/100, 1.01, 41) };
+    const ia = 1/m.odds.a, ib = 1/m.odds.b;
+    m.hist.push({t:Date.now(), model_a: ens, implied_a: ia/(ia+ib)});
+    if(m.hist.length>90) m.hist.shift();
+  }
+  function toApi(m){
+    const st=m.st; let sets;
+    if(m.sport==='tennis'){ sets = st.sets.map(s=>s.slice()); if(m.status==='live' && st.winner==null) sets.push(st.g.slice()); }
+    else sets = st.sets.map(s=>s.slice());
+    return { id:m.id, sport:m.sport, source:'simulador', category:m.category, player_a:m.a.name, player_b:m.b.name, tournament:m.tournament, surface:m.surface,
+      status:m.status, start_time:new Date(m.start).toISOString(), best_of:m.bo, server: m.status==='live' ? (st.server===0?'a':'b') : null,
+      rank_a:m.a.rank, rank_b:m.b.rank, country_a:m.a.country, country_b:m.b.country,
+      score: m.status==='upcoming' ? {sets:[],games:[],points:null} : {sets, games:[], points: m.status==='live' ? (m.sport==='tennis'?tnPoints(st):st.p.join('-')) : null},
+      winner: st.winner==null?null:(st.winner===0?'a':'b'),
+      odds: m.status==='finished' ? {player_a:null,player_b:null} : {player_a:m.odds.a, player_b:m.odds.b},
+      model_prob_a: m.model.ens, model_prob_b: 1-m.model.ens, value_bet_count:0, timestamp:new Date().toISOString(), _books:m.books };
+  }
+  function predict(m){
+    const name = m.a.name.split(' ').slice(-1)[0], nameB = m.b.name.split(' ').slice(-1)[0];
+    const exp = [];
+    if(m.status==='live') exp.push(`Monte Carlo: ${m.mc.iterations} simulaciones desde el marcador actual dan a ${name} un ${pct(m.mc.prob_a)} de ganar.`);
+    else exp.push(`Monte Carlo: ${m.mc.iterations} simulaciones del partido completo (al mejor de ${m.bo}) dan a ${name} un ${pct(m.mc.prob_a)}.`);
+    exp.push(`Elo: ${name} ${m.a.elo} vs ${nameB} ${m.b.elo} → probabilidad previa ${pct(m.eloPre)}.`);
+    exp.push(`Modelo ML (forma, ranking, ${m.sport==='tennis'?'superficie y saque':'estilo y ritmo de juego'}): ${pct(m.model.ml)} para ${name}.`);
+    exp.push(`Consenso de ${m.nExp} expertos ponderado por acierto histórico: ${pct(m.model.exp)} para ${name}.`);
+    if(m.h2h.a+m.h2h.b>0) exp.push(`Cara a cara ${m.h2h.a}-${m.h2h.b}; forma reciente ${m.formA.filter(x=>x==='W').length}/10 vs ${m.formB.filter(x=>x==='W').length}/10.`);
+    return { prob_a:m.model.ens, prob_b:1-m.model.ens,
+      breakdown:{ elo:{prob_a:m.model.elo, elo_a:m.a.elo, elo_b:m.b.elo}, ml:{prob_a:m.model.ml}, monte_carlo:{prob_a:m.model.mc, iterations:m.mc.iterations, set_score_dist:m.mc.dist}, experts:{consensus_a:m.model.exp, n:m.nExp} },
+      weights:{elo:0.20, ml:0.25, monte_carlo:0.40, experts:0.15}, explanation:exp };
+  }
+  function detail(m){
+    const s=m.stats; const api=toApi(m);
+    const stats = m.sport==='tennis' ? {
+      'Aces':[s.ace[0],s.ace[1]], 'Dobles faltas':[s.df[0],s.df[1]],
+      '% ptos. ganados al saque':[s.sp[0]?s.spw[0]/s.sp[0]:null, s.sp[1]?s.spw[1]/s.sp[1]:null],
+      '% ptos. ganados al resto':[s.sp[1]?(s.sp[1]-s.spw[1])/s.sp[1]:null, s.sp[0]?(s.sp[0]-s.spw[0])/s.sp[0]:null],
+      'Breaks':[s.brk[0],s.brk[1]], 'Puntos totales':[s.pts[0],s.pts[1]], 'Racha máx. de puntos':[s.streak[0],s.streak[1]] } : {
+      'Puntos totales':[s.pts[0],s.pts[1]], '% ptos. ganados con saque':[s.sp[0]?s.spw[0]/s.sp[0]:null, s.sp[1]?s.spw[1]/s.sp[1]:null],
+      '% ptos. ganados al resto':[s.sp[1]?(s.sp[1]-s.spw[1])/s.sp[1]:null, s.sp[0]?(s.sp[0]-s.spw[0])/s.sp[0]:null],
+      'Racha máx. de puntos':[s.streak[0],s.streak[1]], 'Juegos ganados':setsWon(m.st) };
+    return {...api, h2h:m.h2h, stats, prob_history:m.hist.slice(), form_a:m.formA, form_b:m.formB, elo_a:m.a.elo, elo_b:m.b.elo};
+  }
+  function init(){
+    const plan = [['tennis','ATP','live',4],['tennis','ATP','upcoming',1],['tennis','WTA','live',3],['tennis','WTA','upcoming',1],['tennis','Challenger','live',2],['tennis','ITF','live',1],['tennis','ITF','finished',1],
+                  ['table_tennis','WTT','live',3],['table_tennis','WTT','upcoming',1],['table_tennis','ITTF','live',2],['table_tennis','TT Elite','live',2],['table_tennis','TT Elite','finished',1]];
+    plan.forEach(([sp,cat,st,n])=>{ for(let i=0;i<n;i++) create(sp,cat,st); });
+  }
+  function tick(){
+    const now=Date.now(); let changed=[];
+    matches.forEach(m=>{
+      if(m.status==='upcoming' && now>=m.start){ m.status='live'; changed.push(m); }
+      if(m.status==='upcoming' && R()<0.12){ recompute(m, 0); changed.push(m); }
+      if(m.status!=='live') return;
+      const rate = m.sport==='tennis'?0.55:0.72;
+      if(R()<rate){ const ev=playPoint(m); if(m.st.winner!=null){ m.status='finished'; m.finishedAt=now; } recompute(m, m.sport==='tennis'?260:320); changed.push(m); }
+      else if(R()<0.25){ recompute(m, 200); }
+    });
+    // recycle finished matches
+    matches = matches.filter(m=>{ if(m.status==='finished' && m.finishedAt && now-m.finishedAt>120000){ used.delete(m.a.name); used.delete(m.b.name); return false; } return true; });
+    const nT = matches.filter(m=>m.sport==='tennis' && m.status!=='finished').length, nTT = matches.filter(m=>m.sport==='table_tennis' && m.status!=='finished').length;
+    if(nT<11) create('tennis', pick(['ATP','WTA','Challenger','ITF']), 'upcoming');
+    if(nTT<8) create('table_tennis', pick(['WTT','ITTF','TT Elite']), 'upcoming');
+    return changed;
+  }
+  const vbMeta = {};
+  function valueBets(settings){
+    const out=[];
+    matches.forEach(m=>{
+      if(m.status==='finished' || !settings.sports[m.sport]) return;
+      [['a',0],['b',1]].forEach(([side,i])=>{
+        const o = side==='a'?m.odds.a:m.odds.b; const p = side==='a'?m.model.ens:1-m.model.ens;
+        if(o<1.1 || o>8) return;
+        const edge = Value.edge(p,o); if(edge < Value.threshold(m.sport, settings)) return;
+        const comps = [m.model.elo,m.model.ml,m.model.mc,m.model.exp].map(x=> side==='a'?x:1-x);
+        const mean = comps.reduce((s,x)=>s+x,0)/4; const sd = Math.sqrt(comps.reduce((s,x)=>s+(x-mean)**2,0)/4);
+        const suspicious = edge > settings.suspicious_edge;
+        let score = clamp(1 - sd*5.5,0,1)*0.6 + Math.min(edge/0.06,1)*0.25 + (m.status==='upcoming'?0.1:0.15)*(1-Math.abs(0.5-p));
+        if(suspicious) score*=0.55;
+        const kf = Value.kelly(p,o); const key=m.id+':'+side;
+        if(!vbMeta[key]) vbMeta[key] = {created: new Date().toISOString(), id:'vb-'+hashStr(key+Date.now()).toString(36)};
+        const ia=1/m.odds.a, ib=1/m.odds.b;
+        out.push({ id:vbMeta[key].id, match_id:m.id, sport:m.sport, tournament:m.tournament, category:m.category, player_a:m.a.name, player_b:m.b.name, status:m.status,
+          market:'Ganador del partido', selection: side==='a'?m.a.name:m.b.name, selection_side:side, odds:o, bookmaker:m.books[i],
+          model_prob:p, implied_prob:1/o, fair_prob: side==='a'? ia/(ia+ib) : ib/(ia+ib), edge, kelly_full:kf, kelly_fraction:settings.kelly_fraction,
+          stake: Value.stake(settings.bankroll, kf, settings.kelly_fraction, settings.max_stake_pct), confidence: Value.confLabel(score), confidence_score:score,
+          suspicious, created_at: vbMeta[key].created, models:{elo:comps[0],ml:comps[1],monte_carlo:comps[2],experts:comps[3],ensemble:p} });
+      });
+    });
+    return out;
+  }
+  // ---- experts (fictional analyst profiles)
+  function experts(){
+    const defs = [
+      ['Baseline Sharp','tennis','Tipstrr',0.62,0.031],['Ace Analytics','tennis','Blogabet',0.58,0.022],['Net Cord Value','tennis','Pyckio',0.55,0.012],['Tie-Break Quant','tennis','Telegram',0.6,0.027],
+      ['Topspin Data','table_tennis','Blogabet',0.64,0.038],['Loop & Block','table_tennis','Tipstrr',0.57,0.015],['Spin Index','table_tennis','X (Twitter)',0.53,-0.004],['Resto Ganador ES','tennis','Telegram',0.51,-0.011]];
+    const r = rngSeed(4242);
+    return defs.map(([name,sport,platform,hr,clv],i)=>{
+      const pool = matches.filter(m=>m.sport===sport);
+      const recent = Array.from({length:4},(_,j)=>{
+        const m = pool[(i*3+j)%Math.max(pool.length,1)];
+        if(!m) return null;
+        const pa = m.model.exp; const pw = r()<pa ? m.a.name : m.b.name;
+        const result = m.status==='finished' ? ((m.st.winner===0) === (pw===m.a.name) ? 'acierto':'fallo') : (j>=2 ? (r()<hr?'acierto':'fallo') : 'pendiente');
+        return {match_id:m.id, match:m.a.name+' vs '+m.b.name, predicted_winner:pw, confidence: Math.round((0.55+r()*0.35)*100)/100, timestamp:new Date(Date.now()-j*3600e3*(1+r()*5)).toISOString(), result};
+      }).filter(Boolean);
+      return {name, sport, platform, url:null, weight: Math.round(clamp((hr-0.45)*2.6+(clv*4),0.05,1)*100)/100, hit_rate:hr, n_picks: 120+Math.floor(r()*900), clv, recent};
+    });
+  }
+  // ---- historic performance
+  let statsCache=null;
+  function stats(settings){
+    if(statsCache) return statsCache;
+    const r = rngSeed(77); let bank = 1000; const curve=[]; const clvs=[]; const bySport={tennis:{n:0,staked:0,profit:0,edge:0,wins:0,clv:0},table_tennis:{n:0,staked:0,profit:0,edge:0,wins:0,clv:0}};
+    const N=160; const start=Date.now()-30*86400e3; curve.push({t:new Date(start).toISOString(),bankroll:bank});
+    let staked=0, profit=0, wins=0, edgeSum=0;
+    for(let i=0;i<N;i++){
+      const sport = r()<0.6?'tennis':'table_tennis'; const edge = 0.015+r()*0.06; const o = 1.45+r()*2.3; const p = (1+edge)/o;
+      const kf = Value.kelly(p,o); const st = Value.stake(bank,kf,0.5,0.05); const win = r() < p*0.965;
+      const pr = win ? st*(o-1) : -st; bank+=pr; staked+=st; profit+=pr; if(win) wins++; edgeSum+=edge;
+      const clv = edge*0.45 + gauss(r)*0.032; clvs.push(clv);
+      const b=bySport[sport]; b.n++; b.staked+=st; b.profit+=pr; b.edge+=edge; if(win) b.wins++; b.clv+=clv;
+      curve.push({t:new Date(start+(i+1)*(30*86400e3/N)).toISOString(), bankroll:Math.round(bank*100)/100});
+    }
+    const by={}; Object.entries(bySport).forEach(([k,b])=>{ by[k]={n:b.n, roi:b.profit/b.staked, avg_edge:b.edge/b.n, hit_rate:b.wins/b.n, avg_clv:b.clv/b.n, profit:b.profit}; });
+    statsCache = {n_value_bets:N, avg_edge:edgeSum/N, avg_clv:clvs.reduce((s,x)=>s+x,0)/N, clv_positive_pct: clvs.filter(x=>x>0).length/N, roi_sim: profit/staked, bankroll_curve:curve, by_sport:by, hit_rate:wins/N, clv_values:clvs, profit};
+    return statsCache;
+  }
+  return {
+    init, tick, valueBets, experts, stats,
+    matches: () => matches.map(toApi),
+    detail: id => { const m=matches.find(x=>x.id===id); return m?detail(m):null; },
+    predict: id => { const m=matches.find(x=>x.id===id); return m?predict(m):null; },
+    sources: () => [{name:'Simulador AKERATEN',enabled:true,status:'ok'},{name:'Cuotas (simuladas)',enabled:true,status:'ok'},{name:'Expertos (simulados)',enabled:true,status:'ok'},{name:'Backend FastAPI',enabled:false,status:'no detectado'}]
+  };
+})();
+
+/* =========================================================
+   Normalisation of backend data (defensive)
+   ========================================================= */
+function normMatch(m){
+  if(!m || m.id==null) return null;
+  const sport = /table|tt|ping/i.test(String(m.sport||'')) ? 'table_tennis' : 'tennis';
+  const sc = m.score || {};
+  const sets = Array.isArray(sc.sets) ? sc.sets.filter(s=>Array.isArray(s)&&s.length>=2).map(s=>[num(s[0])??0, num(s[1])??0]) : [];
+  const pa = num(m.model_prob_a); const pb = num(m.model_prob_b) ?? (pa!=null?1-pa:null);
+  const st = ['live','upcoming','finished'].includes(m.status) ? m.status : 'upcoming';
+  return { ...m, id:String(m.id), sport, category: m.category || (sport==='tennis'?'Tenis':'TT'), player_a: m.player_a||'Jugador A', player_b: m.player_b||'Jugador B',
+    tournament: m.tournament||'', surface:m.surface||null, status:st, best_of:num(m.best_of)||(sport==='tennis'?3:5),
+    server: m.server==='a'||m.server==='b' ? m.server : null, rank_a:num(m.rank_a), rank_b:num(m.rank_b),
+    score:{sets, points: sc.points!=null ? String(sc.points) : null}, odds:{player_a:num(m.odds&&m.odds.player_a), player_b:num(m.odds&&m.odds.player_b)},
+    model_prob_a:pa, model_prob_b:pb, value_bet_count:num(m.value_bet_count)||0 };
+}
+function normVB(v){
+  if(!v || (v.id==null && v.match_id==null)) return null;
+  const s=S.settings; const o=num(v.odds); const p=num(v.model_prob);
+  const sport = /table|tt/i.test(String(v.sport||'')) ? 'table_tennis' : 'tennis';
+  const edge = num(v.edge) ?? Value.edge(p,o);
+  const kf = num(v.kelly_full) ?? Value.kelly(p,o);
+  let cs = num(v.confidence_score); const conf = ['alta','media','baja'].includes(v.confidence) ? v.confidence : (cs!=null ? Value.confLabel(cs) : 'media');
+  if(cs==null) cs = conf==='alta'?0.8:conf==='media'?0.55:0.3;
+  return { ...v, id:String(v.id ?? (v.match_id+':'+v.selection_side)), match_id:v.match_id!=null?String(v.match_id):null, sport, odds:o, model_prob:p,
+    implied_prob: num(v.implied_prob) ?? Value.implied(o), fair_prob:num(v.fair_prob), edge, kelly_full:kf,
+    stake: num(v.stake) ?? Value.stake(s.bankroll,kf,s.kelly_fraction,s.max_stake_pct), confidence:conf, confidence_score:cs,
+    suspicious: v.suspicious!=null ? !!v.suspicious : (edge!=null && edge > s.suspicious_edge), models:v.models||{},
+    selection: v.selection || (v.selection_side==='b'?v.player_b:v.player_a), created_at: v.created_at || new Date().toISOString() };
+}
+const arr = x => Array.isArray(x) ? x : (x && Array.isArray(x.items) ? x.items : (x && Array.isArray(x.data) ? x.data : []));
+
+/* =========================================================
+   Data layer: LIVE vs DEMO
+   ========================================================= */
+async function getJSON(path, timeout=5000, opts={}){
+  const c = new AbortController(); const t = setTimeout(()=>c.abort(), timeout);
+  try{ const r = await fetch(path, {...opts, signal:c.signal, headers:{'Accept':'application/json', ...(opts.headers||{})}}); if(!r.ok) throw new Error('HTTP '+r.status); return await r.json(); }
+  finally{ clearTimeout(t); }
+}
+const Data = {
+  async detail(id){
+    if(S.mode==='live'){ try{ return await getJSON('/api/matches/'+encodeURIComponent(id)); }catch(e){ return S.matches.find(m=>m.id===id) || null; } }
+    return Sim.detail(id);
+  },
+  async predict(id){
+    if(S.mode==='live'){ try{ return await getJSON('/api/predict/'+encodeURIComponent(id)); }catch(e){ return null; } }
+    return Sim.predict(id);
+  }
+};
+async function detectMode(){
+  if(!/^https?:$/.test(location.protocol)) return false;
+  try{ const h = await getJSON('/api/health', 1500); if(h && typeof h==='object' && (h.status || h.app)){ S.health = h; return true; } }catch(e){}
+  return false;
+}
+function setMode(mode){
+  S.mode = mode; const b = $('#modeBadge');
+  b.className = 'badge-mode ' + (mode==='live'?'live':'demo');
+  b.innerHTML = '<span class="dot"></span>' + (mode==='live' ? 'EN VIVO' : 'DATOS SIMULADOS (DEMO)');
+  $('#demoStrip').hidden = mode==='live';
+  if(mode==='live' && S.health && S.health.disclaimer) $('#discExtra').textContent = S.health.disclaimer;
+}
+// ---- LIVE
+let ws=null, wsRetry=1000, pollT=null;
+async function liveLoad(full){
+  const tasks = [getJSON('/api/matches'), getJSON('/api/value-bets')];
+  if(full) tasks.push(getJSON('/api/experts'), getJSON('/api/stats'), getJSON('/api/settings'));
+  const r = await Promise.allSettled(tasks);
+  if(r[0].status==='fulfilled') applyMatches(arr(r[0].value));
+  if(r[1].status==='fulfilled') applyVBs(arr(r[1].value));
+  if(full){
+    if(r[2].status==='fulfilled') S.experts = arr(r[2].value);
+    if(r[3].status==='fulfilled' && r[3].value && typeof r[3].value==='object') S.stats = r[3].value;
+    if(r[4].status==='fulfilled' && r[4].value && typeof r[4].value==='object'){ S.settings = normSettings({...S.settings, ...r[4].value}); syncSettingsUI(); }
+  }
+  renderAll();
+}
+function connectWS(){
+  try{
+    ws = new WebSocket((location.protocol==='https:'?'wss://':'ws://') + location.host + '/ws/live');
+    ws.onopen = ()=>{ wsRetry=1000; };
+    ws.onmessage = ev => {
+      let msg; try{ msg = JSON.parse(ev.data); }catch(e){ return; }
+      if(!msg || typeof msg!=='object') return;
+      const d = msg.data;
+      if(msg.type==='snapshot' && d){ if(d.matches) applyMatches(arr(d.matches)); if(d.value_bets) applyVBs(arr(d.value_bets)); }
+      else if(msg.type==='matches') applyMatches(arr(d), true);
+      else if(msg.type==='value_bets') applyVBs(arr(d));
+      else if(msg.type==='alert'){ const a=d||{}; toast(a.title||'Alerta', a.message||a.text||'', a.sport==='table_tennis'?'tt':'tn'); }
+      renderAll();
+    };
+    ws.onclose = ()=>{ setTimeout(connectWS, wsRetry); wsRetry=Math.min(wsRetry*2, 30000); };
+    ws.onerror = ()=>{ try{ ws.close(); }catch(e){} };
+  }catch(e){}
+}
+function applyMatches(list, merge){
+  const norm = list.map(normMatch).filter(Boolean);
+  if(merge && S.matches.length){ const map=new Map(S.matches.map(m=>[m.id,m])); norm.forEach(m=>map.set(m.id,m)); S.matches=[...map.values()]; }
+  else S.matches = norm;
+  S.matches.forEach(m=>{ if(m.model_prob_a==null) return; const h = S.hist[m.id] || (S.hist[m.id]=[]); const ia = m.odds.player_a&&m.odds.player_b ? (1/m.odds.player_a)/((1/m.odds.player_a)+(1/m.odds.player_b)) : null;
+    const last=h[h.length-1]; if(!last || last.model_a!==m.model_prob_a || last.implied_a!==ia){ h.push({t:Date.now(), model_a:m.model_prob_a, implied_a:ia}); if(h.length>120) h.shift(); } });
+}
+function applyVBs(list){
+  const norm = list.map(normVB).filter(Boolean);
+  if(!S.firstLoad){ norm.forEach(v=>{ if(!S.seenVB.has(v.id) && v.edge>0.05) notifyVB(v); }); }
+  norm.forEach(v=>S.seenVB.add(v.id));
+  S.vbs = norm; S.firstLoad = false;
+}
+// ---- DEMO
+function demoStep(){
+  const changed = Sim.tick();
+  S.matches = Sim.matches().map(normMatch).filter(Boolean);
+  S.vbs.forEach(v=>v._new=false);
+  const vbs = Sim.valueBets(S.settings).map(normVB);
+  vbs.forEach(v=>{ if(!S.seenVB.has(v.id)){ v._new = !S.firstLoad; if(!S.firstLoad && v.edge>0.05) notifyVB(v); S.seenVB.add(v.id);} });
+  S.vbs = vbs; S.firstLoad=false;
+  Sim.matches().forEach(m=>{ const d=Sim.detail(m.id); if(d) S.hist[m.id]=d.prob_history; });
+  return changed;
+}
+function refreshDemoDerived(){
+  S.vbs = Sim.valueBets(S.settings).map(normVB);
+  S.vbs.forEach(v=>S.seenVB.add(v.id));
+}
+
+/* =========================================================
+   Notifications
+   ========================================================= */
+let toastCount=0;
+function toast(title, body, kind, onClick){
+  const box=$('#toasts'); if(box.children.length>=3) box.firstElementChild.remove();
+  const el=document.createElement('div'); el.className='toast';
+  el.style.setProperty('--tc', kind==='tt'?'var(--tt)':kind==='warn'?'var(--warn)':'var(--tennis)');
+  el.innerHTML = `<div class="ti">${kind==='tt'?'🏓':kind==='warn'?'!':'🎾'}</div><div style="min-width:0"><b>${esc(title)}</b><span>${esc(body)}</span></div>`;
+  el.onclick = ()=>{ if(onClick) onClick(); el.remove(); };
+  box.appendChild(el);
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(), 320); }, 6000);
+}
+function notifyVB(v){
+  toast(`Nueva value bet ${spct(v.edge)}`, `${v.selection} @ ${odd(v.odds)} · ${v.bookmaker||''} · ${v.tournament||''}`, v.suspicious?'warn':(v.sport==='table_tennis'?'tt':'tn'), ()=>openModal(v.id));
+}
+
+/* =========================================================
+   Charts (inline SVG, no deps)
+   ========================================================= */
+const CHARTS = {};
+let chartSeq=0;
+function lineChart(series, o={}){
+  const id = 'ch'+(++chartSeq); const W=1000, H=300;
+  const n = Math.max(...series.map(s=>s.values.length), 0);
+  if(n<2) return `<div class="chart" style="--h:${o.h||200}px;display:grid;place-items:center;color:var(--muted);font-size:13px">Sin datos suficientes todavía.</div>`;
+  let lo = o.min, hi = o.max;
+  if(lo==null||hi==null){ const all = series.flatMap(s=>s.values.filter(v=>v!=null)); const mn=Math.min(...all), mx=Math.max(...all); const pad=(mx-mn)*0.12||1; lo=lo??mn-pad; hi=hi??mx+pad; }
+  const X = i => i/(n-1)*W, Y = v => H - (v-lo)/(hi-lo)*H;
+  const ticks = o.ticks || [lo, lo+(hi-lo)/3, lo+2*(hi-lo)/3, hi];
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs>`;
+  series.forEach((s,k)=>{ svg+=`<linearGradient id="${id}g${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.color}" stop-opacity=".28"/><stop offset="1" stop-color="${s.color}" stop-opacity="0"/></linearGradient>`; });
+  svg+='</defs>';
+  ticks.forEach(t=>{ svg+=`<line class="gl${o.midLine===t?' mid':''}" x1="0" x2="${W}" y1="${Y(t)}" y2="${Y(t)}"/>`; });
+  series.forEach((s,k)=>{
+    const pts = s.values.map((v,i)=>v==null?null:[X(i),Y(v)]).filter(Boolean); if(pts.length<2) return;
+    const d = 'M'+pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L');
+    if(s.area) svg += `<path d="${d}L${pts[pts.length-1][0]},${H}L${pts[0][0]},${H}Z" fill="url(#${id}g${k})" stroke="none"/>`;
+    svg += `<path class="ln" d="${d}" stroke="${s.color}" ${s.dash?'stroke-dasharray="6 5"':''}/>`;
+  });
+  svg += `<line class="hl" id="${id}h" x1="0" x2="0" y1="0" y2="${H}" style="display:none"/></svg>`;
+  let html = `<div class="chart" data-chart="${id}" style="--h:${o.h||210}px">`+svg;
+  const plotH = `(100% - 22px)`;
+  ticks.forEach(t=>{ html+=`<span class="yl" style="top:calc(${plotH} * ${(1-(t-lo)/(hi-lo)).toFixed(4)})">${esc((o.yFmt||(v=>v.toFixed(0)))(t))}</span>`; });
+  if(o.xLabels){ const xl=o.xLabels; [0, Math.floor((n-1)/2), n-1].forEach((i,j)=>{ html+=`<span class="xl ${j===0?'first':j===2?'last':''}" style="left:calc(44px + (100% - 44px) * ${(i/(n-1)).toFixed(4)})">${esc(xl(i))}</span>`; }); }
+  series.forEach(s=>{ const v=s.values[n-1]; if(v==null||s.noEnd) return; html+=`<span class="end" style="color:${s.color};background:${s.color};left:calc(44px + (100% - 44px));top:calc(${plotH} * ${(1-(v-lo)/(hi-lo)).toFixed(4)})"></span>`; });
+  html += '</div>';
+  CHARTS[id] = {series, n, fmt:o.yFmt||(v=>v.toFixed(2)), xLabel:o.xLabels};
+  return html;
+}
+document.addEventListener('mousemove', e=>{
+  const tip=$('#tip'); const el = e.target.closest && e.target.closest('.chart[data-chart]');
+  $$('.chart .hl').forEach(l=>{ if(!el || !l.id.startsWith(el.dataset.chart)) l.style.display='none'; });
+  if(!el){ tip.style.opacity=0; return; }
+  const c = CHARTS[el.dataset.chart]; if(!c){ tip.style.opacity=0; return; }
+  const svg=el.querySelector('svg'); const r=svg.getBoundingClientRect(); const rel=clamp((e.clientX-r.left)/r.width,0,1); const i=Math.round(rel*(c.n-1));
+  const hl=$('#'+el.dataset.chart+'h'); if(hl){ const x=i/(c.n-1)*1000; hl.setAttribute('x1',x); hl.setAttribute('x2',x); hl.style.display=''; }
+  tip.innerHTML = (c.xLabel?`<div style="color:var(--muted);margin-bottom:3px">${esc(c.xLabel(i))}</div>`:'') + c.series.map(s=>`<div class="tt-row"><span style="color:${s.color}">● ${esc(s.label)}</span><b>${s.values[i]==null?'—':esc(c.fmt(s.values[i]))}</b></div>`).join('');
+  tip.style.opacity=1; const tw=tip.offsetWidth; let x=e.clientX+14; if(x+tw>innerWidth-8) x=e.clientX-tw-14; tip.style.left=x+'px'; tip.style.top=(e.clientY+14)+'px';
+});
+function sparkSVG(vals, color){
+  if(!vals || vals.length<2) return '';
+  const mn=Math.min(...vals), mx=Math.max(...vals), W=100, H=30; const X=i=>i/(vals.length-1)*W, Y=v=>H-2-(v-mn)/((mx-mn)||1)*(H-6);
+  const d='M'+vals.map((v,i)=>X(i).toFixed(1)+','+Y(v).toFixed(1)).join('L');
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="spk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".35"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><path d="${d}L${W},${H}L0,${H}Z" fill="url(#spk)"/><path d="${d}" fill="none" stroke="${color}" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>`;
+}
+function ring(v, color, label){
+  const r=32, C=2*Math.PI*r; const f=clamp(v??0,0,1);
+  return `<div class="ring"><svg viewBox="0 0 76 76"><circle class="bgc" cx="38" cy="38" r="${r}"/><circle class="fg" cx="38" cy="38" r="${r}" stroke="${color}" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-f)}"/></svg><div class="rv"><div>${v==null?'—':Math.round(f*100)+'%'}<small>${esc(label)}</small></div></div></div>`;
+}
+function heatColor(e){ // edge → color
+  const t = clamp((e-0.01)/0.07, 0, 1);
+  const stops = [[43,227,139],[198,255,0],[255,176,32],[255,77,109]];
+  const p = t*(stops.length-1), i=Math.min(Math.floor(p),stops.length-2), f=p-i; const c = stops[i].map((x,k)=>Math.round(x+(stops[i+1][k]-x)*f));
+  return `rgb(${c.join(',')})`;
+}
+
+/* =========================================================
+   Rendering
+   ========================================================= */
+function confChip(c, sc){
+  const bars = c==='alta'?3:c==='media'?2:1;
+  return `<span class="conf ${c}"><i>${[1,2,3].map(k=>`<b class="${k<=bars?'on':''}"></b>`).join('')}</i>${esc(c)}</span>`;
+}
+function renderKPIs(){
+  const live = S.matches.filter(m=>m.status==='live'); const lt = live.filter(m=>m.sport==='tennis').length;
+  const vbs = S.vbs; const sus = vbs.filter(v=>v.suspicious).length;
+  const avgEdge = vbs.length ? vbs.reduce((s,v)=>s+(v.edge||0),0)/vbs.length : null;
+  const st = S.stats || {}; const curve = arr(st.bankroll_curve).map(p=>num(p.bankroll)).filter(v=>v!=null);
+  const bank = S.settings.bankroll;
+  const roi = num(st.roi_sim), clv = num(st.avg_clv);
+  const tennisC = cssVar('--tennis')||'#C6FF00', ttC = cssVar('--tt')||'#00E5FF';
+  const k = [
+    {l:'Partidos en vivo', v:live.length, s:`${lt} tenis · ${live.length-lt} t. mesa`, c:'var(--neg)', dot:true},
+    {l:'Value bets activas', v:vbs.length, s: sus?`${sus} sospechosa${sus>1?'s':''}`:'sin alertas', c:'var(--tennis)'},
+    {l:'Edge medio', v:spct(avgEdge), s:`umbral ${pct(S.settings.min_edge_tennis)} / ${pct(S.settings.min_edge_tt)}`, c:'var(--tt)'},
+    {l:'CLV medio', v:spct(clv,2), s: st.clv_positive_pct!=null?`${pct(st.clv_positive_pct,0)} con CLV positivo`:'—', c:'var(--pos)', cls: clv>=0?'pos':'neg'},
+    {l:'ROI simulado', v:spct(roi), s: st.n_value_bets!=null?`${st.n_value_bets} apuestas · acierto ${pct(st.hit_rate,0)}`:'—', c:'var(--tt2)', cls: roi>=0?'pos':'neg'},
+    {l:'Bankroll', v:eur(bank,0), s: curve.length?`curva simulada: ${eur(curve[curve.length-1],0)}`:`Kelly ×${String(S.settings.kelly_fraction).replace('.',',')} · tope ${pct(S.settings.max_stake_pct,0)}`, c:'var(--tennis)', spark:curve}
+  ];
+  $('#kpis').innerHTML = k.map(x=>`<div class="glass kpi" style="--k:${x.c}"><div class="lbl">${x.dot?'<span class="dot" style="color:var(--neg)"></span>':''}${x.l}</div><div class="val ${x.cls||''}">${x.v}</div><div class="sub">${esc(x.s)}</div>${x.spark?sparkSVG(x.spark.slice(-60), tennisC):''}</div>`).join('');
+  $('#cntLive').textContent = live.length; $('#cntVB').textContent = vbs.length;
+}
+function scoreRows(m, big){
+  const sets = m.score.sets || []; const live = m.status==='live';
+  const curIdx = (live && m.sport==='tennis') ? sets.length-1 : -1;
+  const winA = m.winner==='a' || (m.status==='finished' && !m.winner && sets.filter(s=>s[0]>s[1]).length > sets.filter(s=>s[1]>s[0]).length);
+  const winB = m.winner==='b' || (m.status==='finished' && !m.winner && !winA);
+  let pts = [null,null];
+  if(live && m.score.points){ const p = String(m.score.points).split(/[-:]/); pts=[p[0]??'',p[1]??'']; }
+  const setsWon = side => sets.filter((s,i)=> i!==curIdx && (side===0 ? s[0]>s[1] : s[1]>s[0])).length;
+  const row = (side) => {
+    const name = side===0?m.player_a:m.player_b, cc = side===0?m.country_a:m.country_b, rk = side===0?m.rank_a:m.rank_b;
+    const srv = live && m.server===(side===0?'a':'b');
+    const win = side===0?winA:winB;
+    const cells = sets.map((s,i)=>{ const mine=s[side], oth=s[1-side]; const done = i!==curIdx; const tbn = (m.sport==='tennis' && done && ((mine===7&&oth===6)||(mine===6&&oth===7))) ? '' : '';
+      return `<span class="${i===curIdx?'cur':(done&&mine>oth?'w':'')}">${mine}${tbn}</span>`; }).join('');
+    const sw = m.sport==='table_tennis' && m.status!=='upcoming' ? `<span class="w" style="color:var(--acc-ink);border-left:1px solid var(--line);margin-left:2px">${setsWon(side)}</span>` : '';
+    const ptsCell = live ? `<span class="pts">${esc(pts[side])}</span>` : (m.status==='upcoming' && m.odds && (side===0?m.odds.player_a:m.odds.player_b) ? `<span class="pts empty mono" style="color:var(--muted);font-size:12px">${odd(side===0?m.odds.player_a:m.odds.player_b)}</span>` : `<span class="pts empty">${win?'<span style="color:var(--pos)">✓</span>':''}</span>`);
+    return `<div class="prow"><div class="pname ${win?'win':''}"><span class="fl">${flag(cc)}</span><span class="nm" title="${esc(name)}">${esc(name)}</span>${rk?`<span class="rk">#${rk}</span>`:''}<span class="serve ${srv?'':'off'}" title="Saca"></span></div><div class="sets">${cells}${sw}</div>${ptsCell}</div>`;
+  };
+  return row(0)+row(1);
+}
+function statusTag(m){
+  if(m.status==='live') return `<span class="live-tag"><span class="dot"></span>LIVE</span>`;
+  if(m.status==='upcoming') return `<span class="status-tag">⏱ ${timeHM(m.start_time)}</span>`;
+  return `<span class="status-tag">FINAL</span>`;
+}
+function vbForMatch(id){ return S.vbs.filter(v=>v.match_id===id); }
+function matchCard(m){
+  const tt = m.sport==='table_tennis'; const vbs = vbForMatch(m.id); const best = vbs.sort((a,b)=>b.edge-a.edge)[0];
+  const pa = m.model_prob_a; const oa=m.odds.player_a, ob=m.odds.player_b;
+  const ia = oa&&ob ? (1/oa)/((1/oa)+(1/ob)) : null;
+  const dir = S.oddsDir[m.id]||{};
+  const arrow = d => d>0?'<span class="arr up">▲</span>':d<0?'<span class="arr dn">▼</span>':'';
+  const lastA = m.player_a.split(' ').slice(-1)[0], lastB = m.player_b.split(' ').slice(-1)[0];
+  return `<article class="glass mcard ${tt?'tt':''} ${best?'hasvalue':''} ${m.status}" data-mid="${esc(m.id)}" tabindex="0" aria-label="${esc(m.player_a+' contra '+m.player_b)}">
+    <div class="mhead"><span class="chip sport">${sportIco(m.sport)} ${tt?'TT':'Tenis'}</span><span class="chip">${esc(m.category)}</span><span class="tour" title="${esc(m.tournament)}">${esc(m.tournament)}${m.surface?' · '+esc(m.surface):''}</span>${best?`<span class="vbadge ${best.suspicious?'sus':''}">${best.suspicious?'⚠':'◆'} ${spct(best.edge)}</span>`:statusTag(m)}</div>
+    <div class="sb" data-sb>${scoreRows(m)}</div>
+    ${pa!=null?`<div class="probwrap"><div class="problbl"><span>Modelo <b>${pct(pa,0)}</b> · ${esc(lastA)}</span><span>${best?statusTag(m)+' · ':''}Mercado <b>${pct(ia,0)}</b></span></div>
+      <div class="probbar"><span class="mid"></span><span class="fill" style="width:${(pa*100).toFixed(1)}%"></span>${ia!=null?`<span class="mk" style="left:${(ia*100).toFixed(1)}%" title="Probabilidad de mercado"></span>`:''}</div></div>`:''}
+    ${(oa||ob)?`<div class="mfoot"><div class="odd ${best&&best.selection_side==='a'?'val':''}"><span class="who">${esc(lastA)}</span><span class="o">${arrow(dir.a)}${odd(oa)}</span></div><div class="odd ${best&&best.selection_side==='b'?'val':''}"><span class="who">${esc(lastB)}</span><span class="o">${arrow(dir.b)}${odd(ob)}</span></div></div>`:''}
+  </article>`;
+}
+function filteredMatches(){
+  const f=S.filters; const q=f.q.trim().toLowerCase();
+  const ord = {live:0, upcoming:1, finished:2};
+  return S.matches.filter(m=> (f.sport==='all'||m.sport===f.sport) && (f.status==='all'||m.status===f.status) && (f.cat==='all'||m.category===f.cat) &&
+      (!q || (m.player_a+' '+m.player_b+' '+m.tournament+' '+m.category).toLowerCase().includes(q)))
+    .sort((a,b)=> (ord[a.status]-ord[b.status]) || (vbForMatch(b.id).length - vbForMatch(a.id).length) || (new Date(a.start_time)-new Date(b.start_time)));
+}
+function renderMatches(){
+  // categories
+  const cats = [...new Set(S.matches.filter(m=>S.filters.sport==='all'||m.sport===S.filters.sport).map(m=>m.category))].sort();
+  const sel = $('#fCat'); const cur = S.filters.cat;
+  const want = '<option value="all">Todas las categorías</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  if(sel.dataset.sig!==cats.join('|')){ sel.innerHTML=want; sel.dataset.sig=cats.join('|'); sel.value = cats.includes(cur)?cur:'all'; if(!cats.includes(cur)) S.filters.cat='all'; }
+  const list = filteredMatches();
+  $('#mCount').textContent = `${list.length} de ${S.matches.length} partidos`;
+  const grid = $('#matchGrid');
+  if(!list.length){ grid.innerHTML = `<div class="empty-state"><b>No hay partidos con estos filtros</b>Prueba con otro deporte, estado o búsqueda.</div>`; return; }
+  grid.innerHTML = list.map(matchCard).join('');
+  list.forEach(m=>{
+    const key = JSON.stringify(m.score);
+    if(S.lastScore[m.id]!==undefined && S.lastScore[m.id]!==key){ const el=grid.querySelector(`[data-mid="${CSS.escape(m.id)}"] [data-sb]`); if(el) el.classList.add('flash'); }
+    S.lastScore[m.id]=key;
+  });
+}
+function trackOdds(){
+  S.matches.forEach(m=>{ const p=S.lastOdds[m.id]; const a=m.odds.player_a, b=m.odds.player_b;
+    if(p){ S.oddsDir[m.id] = {a: a>p.a?1:a<p.a?-1:0, b: b>p.b?1:b<p.b?-1:0}; } S.lastOdds[m.id]={a,b}; });
+}
+function sortedVBs(){
+  return S.vbs.slice().sort((x,y)=> (x.suspicious-y.suspicious) || ((y.edge||0)*(0.5+y.confidence_score) - (x.edge||0)*(0.5+x.confidence_score)));
+}
+function renderVBs(){
+  const list = sortedVBs(); const s=S.settings;
+  const total = list.filter(v=>!v.suspicious).reduce((a,v)=>a+(v.stake||0),0);
+  const ev = list.filter(v=>!v.suspicious).reduce((a,v)=>a+(v.stake||0)*(v.edge||0),0);
+  $('#vbSummary').innerHTML = `<span class="pill">Activas <b>${list.length}</b></span><span class="pill">Exposición sugerida <b>${eur(total)}</b> (${pct(total/s.bankroll)})</span><span class="pill">Valor esperado <b class="pos">${eur(ev)}</b></span><span class="pill">Fracción <b>${s.kelly_fraction===0.5?'Half-Kelly':'×'+s.kelly_fraction}</b> · tope <b>${pct(s.max_stake_pct,0)}</b></span>`;
+  if(!list.length){ $('#vbList').innerHTML = `<div class="glass empty-state"><b>Sin value bets por ahora</b>El monitor sigue analizando cuotas en tiempo real. Puedes bajar los umbrales en Ajustes.</div>`; return; }
+  $('#vbList').innerHTML = list.map((v,i)=>{
+    const tt=v.sport==='table_tennis'; const hc=heatColor(v.edge||0);
+    const stake = Value.stake(s.bankroll, v.kelly_full, s.kelly_fraction, s.max_stake_pct);
+    return `<div class="glass vbrow ${tt?'tt':''} ${v.suspicious?'sus':''} ${v._new?'new':''}">
+      <div class="rank">${String(i+1).padStart(2,'0')}</div>
+      <div class="vbm"><div class="t">${esc(v.player_a)} <span style="color:var(--faint)">vs</span> ${esc(v.player_b)}</div>
+        <div class="s"><span class="chip sport" style="color:var(--acc-ink);background:var(--acc-soft);border-color:transparent">${sportIco(v.sport)} ${esc(v.category||'')}</span>${v.status==='live'?'<span class="live-tag"><span class="dot"></span>LIVE</span>':'<span class="status-tag">PRÓXIMO</span>'}<span>${esc(v.tournament||'')}</span>${v.suspicious?'<span class="susp">⚠ SOSPECHOSA</span>':''}</div></div>
+      <div class="sel"><div class="lbl-m">Selección · Cuota</div><div class="n">${esc(v.selection)}</div><div class="b"><b>@ ${odd(v.odds)}</b> · ${esc(v.bookmaker||'—')}</div></div>
+      <div class="mvi"><div class="lbl-m">Modelo / Impl.</div>Modelo <b>${pct(v.model_prob)}</b><br>Impl. ${pct(v.implied_prob)}</div>
+      <div><div class="lbl-m">Edge</div><div class="heat"><span class="e" style="background:${hc}">${spct(v.edge)}</span><span class="bar"><i style="width:${clamp((v.edge||0)/0.1,0.05,1)*100}%;background:${hc}"></i></span></div></div>
+      <div class="stake"><div class="lbl-m">Stake</div>${eur(stake)}<small>${pct(stake/s.bankroll,2)} · f* ${pct(v.kelly_full)}</small></div>
+      <div><div class="lbl-m">Confianza</div>${confChip(v.confidence)}</div>
+      <div class="act"><button class="btn" data-vb="${esc(v.id)}">Ver análisis completo →</button></div>
+    </div>`;
+  }).join('');
+}
+function renderExperts(){
+  const list = S.experts.slice().sort((a,b)=>(num(b.weight)||0)-(num(a.weight)||0));
+  if(!list.length){ $('#expertGrid').innerHTML = `<div class="glass empty-state"><b>Sin expertos registrados</b>Cuando el backend recopile pronósticos aparecerán aquí.</div>`; return; }
+  $('#expertGrid').innerHTML = list.map(e=>{
+    const tt = e.sport==='table_tennis'; const col = tt?'var(--tt)':'var(--tennis)'; const hr=num(e.hit_rate), w=num(e.weight), clv=num(e.clv);
+    const rec = arr(e.recent).slice(0,4);
+    return `<div class="glass ecard">
+      <div class="etop">${ring(hr,col,'ACIERTO')}<div style="min-width:0"><div class="ename">${esc(e.name||'Experto')}</div>
+        <div class="emeta"><span class="chip" style="color:${tt?'var(--tt-ink)':'var(--tennis-ink)'}">${sportIco(e.sport)} ${sportName(e.sport)}</span><span class="chip">${esc(e.platform||'—')}</span></div></div></div>
+      <div class="estats"><div><span>Peso</span><b>${w==null?'—':w.toFixed(2)}</b></div><div><span>Picks</span><b>${e.n_picks??'—'}</b></div><div><span>CLV</span><b class="${clv>=0?'pos':'neg'}">${spct(clv)}</b></div></div>
+      <div><div style="display:flex;justify-content:space-between;font:600 10px var(--f-mono);letter-spacing:.1em;color:var(--faint);margin-bottom:6px"><span>PESO EN EL ENSEMBLE</span><span>${w==null?'':Math.round(w*100)+'%'}</span></div><div class="wbar"><i style="width:${clamp(w||0,0,1)*100}%"></i></div></div>
+      <div class="picks">${rec.length?rec.map(p=>{ const r=p.result; const cls = /acier|win|ok|hit/i.test(r)?'ok':/fall|loss|ko|miss/i.test(r)?'ko':'pe';
+        return `<div class="pick"><span class="r ${cls}">${cls==='ok'?'✓':cls==='ko'?'✗':'•'}</span><span class="m" title="${esc(p.match)}"><b>${esc(p.predicted_winner||'—')}</b> · ${esc(p.match||'')}</span><span class="c">${p.confidence!=null?pct(num(p.confidence),0):''}</span></div>`; }).join(''):'<div class="pick" style="grid-template-columns:1fr;color:var(--muted)">Sin picks recientes</div>'}</div>
+      ${e.url?`<a href="${esc(e.url)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--muted)">Ver perfil ↗</a>`:''}
+    </div>`;
+  }).join('');
+}
+function renderPerf(){
+  const st = S.stats || {}; const curve = arr(st.bankroll_curve).filter(p=>num(p.bankroll)!=null);
+  const tc = cssVar('--tennis-ink')||'#C6FF00', ttc=cssVar('--tt')||'#00E5FF';
+  const vals = curve.map(p=>num(p.bankroll));
+  const start = vals[0], end = vals[vals.length-1];
+  const clvs = arr(st.clv_values || st.clv_distribution).map(num).filter(v=>v!=null);
+  let hist = '';
+  if(clvs.length){
+    const bins = 14, lo=-0.1, hi=0.12, w=(hi-lo)/bins; const c = Array(bins).fill(0);
+    clvs.forEach(v=>{ c[clamp(Math.floor((v-lo)/w),0,bins-1)]++; }); const mx=Math.max(...c);
+    hist = `<div class="hist">${c.map((n,i)=>{ const mid=lo+(i+0.5)*w; return `<div title="${spct(lo+i*w,0)} a ${spct(lo+(i+1)*w,0)}: ${n}" style="height:${(n/mx*100).toFixed(1)}%;background:${mid>=0?'var(--pos)':'var(--neg)'};opacity:${0.45+0.55*n/mx}"></div>`; }).join('')}</div><div class="hist-x"><span>${spct(lo,0)}</span><span>0%</span><span>${spct(hi,0)}</span></div>`;
+  } else hist = `<p class="hint">El backend no expone la distribución de CLV. CLV medio: <b>${spct(num(st.avg_clv),2)}</b>.</p>`;
+  const by = st.by_sport || {};
+  const sportCard = (k) => { const b=by[k]; if(!b) return ''; const tt=k==='table_tennis';
+    return `<div class="glass panel" style="--acc:${tt?'var(--tt)':'var(--tennis)'}"><h3>${sportIco(k)} ${sportName(k)}</h3><p class="hint">${b.n??'—'} apuestas simuladas</p>
+      <div class="estats" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div><span>ROI</span><b class="${num(b.roi)>=0?'pos':'neg'}">${spct(num(b.roi))}</b></div><div><span>Acierto</span><b>${pct(num(b.hit_rate),0)}</b></div><div><span>Edge medio</span><b>${spct(num(b.avg_edge))}</b></div><div><span>CLV medio</span><b class="${num(b.avg_clv)>=0?'pos':'neg'}">${spct(num(b.avg_clv),2)}</b></div></div></div>`; };
+  $('#perfBody').innerHTML = `
+    <div class="cols c3">
+      <div class="glass panel"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start"><div><h3>Curva de bankroll</h3><p class="hint">Simulación Half-Kelly sobre value bets históricas (30 días).</p></div>
+        <div style="text-align:right"><div class="mono" style="font-size:24px;font-weight:700">${eur(end,0)}</div><div class="mono ${end>=start?'pos':'neg'}" style="font-size:12px">${start?spct(end/start-1):''} desde ${eur(start,0)}</div></div></div>
+        ${lineChart([{label:'Bankroll',values:vals,color:tc,area:true}],{h:260,yFmt:v=>Math.round(v)+'€',xLabels:i=>{ const d=new Date(curve[i]&&curve[i].t); return isNaN(d)?'':d.toLocaleDateString('es-ES',{day:'2-digit',month:'short'}); }})}</div>
+      <div class="glass panel"><h3>Distribución CLV</h3><p class="hint">Cuota de entrada vs cuota de cierre. ${st.clv_positive_pct!=null?`<b class="pos">${pct(num(st.clv_positive_pct),0)}</b> con CLV positivo.`:''}</p>${hist}
+        <div class="estats" style="margin-top:16px"><div><span>ROI</span><b class="${num(st.roi_sim)>=0?'pos':'neg'}">${spct(num(st.roi_sim))}</b></div><div><span>Acierto</span><b>${pct(num(st.hit_rate),0)}</b></div><div><span>Edge</span><b>${spct(num(st.avg_edge))}</b></div></div></div>
+    </div>
+    <div class="cols c2">${sportCard('tennis')}${sportCard('table_tennis')}</div>`;
+}
+function renderSources(){
+  const src = S.mode==='live' ? arr(S.health && S.health.sources) : Sim.sources();
+  $('#srcHint').textContent = S.mode==='live' ? 'Proveedores reportados por /api/health.' : 'Modo demo: sin backend conectado.';
+  $('#sources').innerHTML = src.length ? src.map(s=>{ const ok = s.enabled && /ok|up|live|activo|connected/i.test(String(s.status||'ok')); return `<div class="src"><span>${esc(s.name||'Fuente')}</span><span class="st" style="color:${ok?'var(--pos)':s.enabled?'var(--warn)':'var(--faint)'}">● ${esc(s.status||(s.enabled?'activo':'inactivo'))}</span></div>`; }).join('') : '<div class="src">Sin información de fuentes</div>';
+}
+function renderAll(){
+  trackOdds(); renderKPIs();
+  if(S.tab==='live') renderMatches();
+  else if(S.tab==='value') renderVBs();
+  else if(S.tab==='experts') renderExperts();
+  else if(S.tab==='perf') renderPerf();
+  if(S.drawerId) renderDrawer(true);
+}
+
+/* =========================================================
+   Drawer: match detail
+   ========================================================= */
+let drawerReq=0;
+async function openDrawer(id){
+  S.drawerId=id; $('#overlay').classList.add('open'); const d=$('#drawer'); d.classList.add('open'); d.setAttribute('aria-hidden','false');
+  d.innerHTML = `<div class="ov-head"><div class="ttl"><div class="skel" style="width:60%;height:20px"></div></div><button class="icon-btn" data-close aria-label="Cerrar">✕</button></div><div class="ov-body"><div class="skel"></div><div class="skel" style="width:80%"></div></div>`;
+  await renderDrawer(false);
+}
+async function renderDrawer(soft){
+  const id=S.drawerId; if(!id) return; const req=++drawerReq;
+  if(soft && S.mode==='live') { /* avoid hammering API: refresh from local */ }
+  const [det, pred] = (soft && S.mode==='live') ? [S._lastDet, S._lastPred] : await Promise.all([Data.detail(id), Data.predict(id)]);
+  if(req!==drawerReq || S.drawerId!==id) return;
+  S._lastDet = det; S._lastPred = pred;
+  const base = S.matches.find(m=>m.id===id); const m = normMatch({...(det||{}), ...(base||{})}) || base; if(!m){ closeAll(); return; }
+  const tt = m.sport==='table_tennis'; const ph = arr(det && det.prob_history).length ? arr(det.prob_history) : (S.hist[id]||[]);
+  const tc = tt?(cssVar('--tt')||'#00E5FF'):(cssVar('--tennis-ink')||'#C6FF00'); const mc = cssVar('--market')||'#9aa7c7';
+  const h2h = (det&&det.h2h)||{}; const ha=num(h2h.a)||0, hb=num(h2h.b)||0;
+  const fa = arr(det&&det.form_a), fb = arr(det&&det.form_b);
+  const stats = (det&&det.stats&&typeof det.stats==='object') ? det.stats : {};
+  const lastA = m.player_a.split(' ').slice(-1)[0], lastB = m.player_b.split(' ').slice(-1)[0];
+  const vbs = vbForMatch(id);
+  const statRows = Object.entries(stats).map(([k,v])=>{ const a=Array.isArray(v)?num(v[0]):num(v&&v.a), b=Array.isArray(v)?num(v[1]):num(v&&v.b); if(a==null&&b==null) return '';
+    const isP = (a!=null&&a<=1&&b!=null&&b<=1&&/%/.test(k)); const f = x => x==null?'—':isP?pct(x,0):x; const tot=(a||0)+(b||0)||1;
+    return `<tr><td>${f(a)}</td><td>${esc(k)}<div class="sbar"><i style="width:${(a||0)/tot*100}%;background:${tc}"></i><i style="width:${(b||0)/tot*100}%;background:${mc}"></i></div></td><td>${f(b)}</td></tr>`; }).join('');
+  const bd = pred && pred.breakdown || {};
+  const d=$('#drawer');
+  const scroll = d.querySelector('.ov-body') ? d.querySelector('.ov-body').scrollTop : 0;
+  d.innerHTML = `<div class="ov-head"><div class="ttl"><div class="meta" style="margin:0 0 8px"><span class="chip sport" style="color:${tt?'var(--tt-ink)':'var(--tennis-ink)'};background:${tt?'var(--tt-soft)':'var(--tennis-soft)'};border-color:transparent">${sportIco(m.sport)} ${sportName(m.sport)}</span><span class="chip">${esc(m.category)}</span>${statusTag(m)}</div>
+      <h2>${esc(m.tournament||'Partido')}</h2><div style="font-size:12.5px;color:var(--muted);margin-top:4px">${m.surface?esc(m.surface)+' · ':''}Al mejor de ${m.best_of} ${tt?'juegos':'sets'} · ${m.status==='upcoming'?'Comienza '+timeHM(m.start_time):'Inicio '+timeHM(m.start_time)}</div></div>
+      <button class="icon-btn" data-close aria-label="Cerrar">✕</button></div>
+    <div class="ov-body">
+      <div class="bigsb ${tt?'tt':''}"><div class="sb">${scoreRows(m,true)}</div></div>
+      ${vbs.length?vbs.map(v=>`<div class="warnbox" style="background:var(--${tt?'tt':'tennis'}-soft);border-color:var(--${tt?'tt':'tennis'})"><div style="flex:1"><b style="color:var(--${tt?'tt':'tennis'}-ink)">Value bet ${spct(v.edge)}</b> · ${esc(v.selection)} @ ${odd(v.odds)} (${esc(v.bookmaker||'')}) ${v.suspicious?'<span class="susp">⚠ SOSPECHOSA</span>':''}</div><button class="btn" data-vb="${esc(v.id)}" style="height:32px">Análisis</button></div>`).join(''):''}
+      <div class="panel glass"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>Probabilidad · ${esc(lastA)}</h3><div class="legend"><span><i style="background:${tc}"></i>Modelo</span><span style="color:${mc}"><i class="dash" style="background:${mc}"></i>Mercado (sin margen)</span></div></div>
+        ${lineChart([{label:'Modelo',values:ph.map(p=>num(p.model_a)),color:tc,area:true},{label:'Mercado',values:ph.map(p=>num(p.implied_a)),color:mc,dash:true}],{min:0,max:1,ticks:[0,.25,.5,.75,1],midLine:.5,yFmt:v=>Math.round(v*100)+'%',h:200,xLabels:i=>ph[i]?timeHM(ph[i].t):''})}</div>
+      ${pred?`<div class="panel glass"><h3>Modelos</h3><p class="hint">Probabilidad de victoria de ${esc(lastA)} según cada componente.</p>${breakdownBars(bd, num(pred.prob_a), 'a', m.odds.player_a&&m.odds.player_b?(1/m.odds.player_a)/((1/m.odds.player_a)+(1/m.odds.player_b)):null, tc)}</div>`:''}
+      <div class="cols c2">
+        <div class="panel glass"><h3>Cara a cara</h3><p class="hint">${ha+hb} enfrentamientos</p>
+          <div class="h2h"><span class="n" style="color:${tc}">${ha}</span><div class="bar"><i style="width:${(ha/((ha+hb)||1)*100)||50}%;background:${tc}"></i><i style="flex:1;background:${mc}"></i></div><span class="n">${hb}</span></div>
+          <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">${arr(h2h.last).slice(0,4).map(l=>`<div class="pick" style="grid-template-columns:auto minmax(0,1fr) auto"><span class="c">${esc(l.year??'')}</span><span class="m">${esc(l.tournament||'')} · <b>${esc(l.winner==='a'?lastA:l.winner==='b'?lastB:(l.winner||''))}</b></span><span class="c">${esc(l.score||'')}</span></div>`).join('')}</div></div>
+        <div class="panel glass"><h3>Forma reciente</h3><p class="hint">Últimos 10 partidos (izq. = más reciente)</p>
+          <div style="display:flex;flex-direction:column;gap:12px"><div><div style="font-size:12.5px;margin-bottom:6px">${flag(m.country_a)} ${esc(m.player_a)}</div><div class="form">${fa.map(x=>`<span class="${x==='W'||x==='V'?'W':'L'}">${x==='W'||x==='V'?'V':'D'}</span>`).join('')||'<span style="color:var(--muted)">—</span>'}</div></div>
+          <div><div style="font-size:12.5px;margin-bottom:6px">${flag(m.country_b)} ${esc(m.player_b)}</div><div class="form">${fb.map(x=>`<span class="${x==='W'||x==='V'?'W':'L'}">${x==='W'||x==='V'?'V':'D'}</span>`).join('')||'<span style="color:var(--muted)">—</span>'}</div></div></div></div>
+      </div>
+      ${statRows?`<div class="panel glass"><h3>Estadísticas del partido</h3><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin:6px 0"><span>${esc(lastA)}</span><span>${esc(lastB)}</span></div><table class="stbl">${statRows}</table></div>`:''}
+    </div>`;
+  const body=d.querySelector('.ov-body'); if(body) body.scrollTop=scroll;
+}
+function breakdownBars(bd, ens, side, marketA, color){
+  const g = (o,k) => { const v = o && (num(o[k]) ?? num(o.prob_a) ?? num(o.consensus_a) ?? num(o.prob)); return v; };
+  const rows = [['Elo', g(bd.elo,'prob_a'), cssVar('--tt2')||'#FF7A1A'],['ML', g(bd.ml,'prob_a'), '#8b7bff'],['Monte Carlo', g(bd.monte_carlo,'prob_a'), cssVar('--tt')||'#00E5FF'],['Expertos', g(bd.experts,'consensus_a'), '#ff6fb5'],['Ensemble', ens, color]];
+  const conv = v => v==null?null:(side==='a'?v:1-v); const mk = conv(marketA);
+  return `<div class="bars">${rows.map(([n,v,c],i)=>{ const p=conv(v); return `<div class="brow ${i===4?'ens':''}"><span class="bn">${n}</span><span class="bt" style="--c:${c}"><i style="width:${p==null?0:(p*100).toFixed(1)}%"></i>${mk!=null?`<span class="mk" style="left:${(mk*100).toFixed(1)}%"></span>`:''}</span><span class="bv">${pct(p)}</span></div>`; }).join('')}
+    ${mk!=null?`<div style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:2px;height:12px;background:var(--text)"></span>Probabilidad del mercado sin margen: ${pct(mk)}</div>`:''}</div>`;
+}
+
+/* =========================================================
+   Modal: value bet analysis
+   ========================================================= */
+async function openModal(vbId){
+  const v = S.vbs.find(x=>x.id===vbId); if(!v) return;
+  S.modalBet = v; const md=$('#modal'); $('#overlay').classList.add('open'); md.classList.add('open'); md.setAttribute('aria-hidden','false');
+  md.innerHTML = `<div class="ov-head"><div class="ttl"><div class="skel" style="width:50%;height:20px"></div></div><button class="icon-btn" data-close aria-label="Cerrar">✕</button></div><div class="ov-body"><div class="skel"></div><div class="skel" style="width:70%"></div></div>`;
+  const [det, pred] = await Promise.all([v.match_id?Data.detail(v.match_id):null, v.match_id?Data.predict(v.match_id):null]);
+  if(S.modalBet!==v) return;
+  const s=S.settings; const tt=v.sport==='table_tennis'; const side=v.selection_side==='b'?'b':'a';
+  const tc = tt?(cssVar('--tt')||'#00E5FF'):(cssVar('--tennis-ink')||'#C6FF00'); const mc=cssVar('--market')||'#9aa7c7';
+  const bd = (pred && pred.breakdown) || {};
+  const mdl = v.models||{};
+  // prefer bet-time models for the selection; fall back to predict breakdown
+  const bdSel = (mdl.elo!=null) ? {elo:{prob_a: side==='a'?mdl.elo:1-mdl.elo}, ml:{prob_a: side==='a'?mdl.ml:1-mdl.ml}, monte_carlo:{prob_a: side==='a'?mdl.monte_carlo:1-mdl.monte_carlo}, experts:{consensus_a: side==='a'?mdl.experts:1-mdl.experts}} : bd;
+  const ensA = side==='a' ? v.model_prob : 1-v.model_prob;
+  const fairA = v.fair_prob!=null ? (side==='a'?v.fair_prob:1-v.fair_prob) : null;
+  const dist = (bd.monte_carlo && bd.monte_carlo.set_score_dist) || {};
+  const distRows = Object.entries(dist).map(([k,p])=>[k,num(p)||0]).sort((a,b)=>{ const [a1,a2]=a[0].split('-').map(Number), [b1,b2]=b[0].split('-').map(Number); return (b1-b2)-(a1-a2) || b1-a1; });
+  const mxd = Math.max(...distRows.map(r=>r[1]), 0.0001);
+  const ph = arr(det && det.prob_history).length ? arr(det.prob_history) : (S.hist[v.match_id]||[]);
+  const conv = x => x==null?null:(side==='a'?num(x):1-num(x));
+  const expl = arr(pred && pred.explanation).slice();
+  expl.push(`${esc(v.bookmaker||'El mercado')} paga @${odd(v.odds)} → probabilidad implícita ${pct(v.implied_prob)}${v.fair_prob!=null?` (${pct(v.fair_prob)} sin margen)`:''}.`);
+  expl.push(`Edge = ${pct(v.model_prob)} × ${odd(v.odds)} − 1 = ${spct(v.edge)}, por encima del umbral de ${pct(Value.threshold(v.sport,s))} para ${sportName(v.sport).toLowerCase()}.`);
+  const stake = Value.stake(s.bankroll, v.kelly_full, s.kelly_fraction, s.max_stake_pct);
+  expl.push(`Kelly completo f* = ${pct(v.kelly_full)}; con fracción ${String(s.kelly_fraction).replace('.',',')} el stake sugerido es ${eur(stake)} (${pct(stake/s.bankroll,2)} del bankroll, tope ${pct(s.max_stake_pct,0)}).`);
+  const md2=$('#modal');
+  md2.innerHTML = `<div class="ov-head"><div class="ttl">
+      <div class="meta" style="margin:0 0 8px"><span class="chip sport" style="color:${tt?'var(--tt-ink)':'var(--tennis-ink)'};background:${tt?'var(--tt-soft)':'var(--tennis-soft)'};border-color:transparent">${sportIco(v.sport)} ${esc(v.category||sportName(v.sport))}</span>${v.status==='live'?'<span class="live-tag"><span class="dot"></span>LIVE</span>':'<span class="status-tag">PRÓXIMO</span>'}<span class="status-tag">${esc(v.tournament||'')}</span></div>
+      <h2>${esc(v.selection)} <span style="color:${tc}">@ ${odd(v.odds)}</span></h2>
+      <div class="meta"><span style="font-size:13px;color:var(--muted)">${esc(v.player_a)} vs ${esc(v.player_b)} · ${esc(v.market||'Ganador')} · ${esc(v.bookmaker||'')}</span></div>
+      <div class="meta"><span class="heat"><span class="e" style="background:${heatColor(v.edge)};font-size:14px">${spct(v.edge)} edge</span></span>${confChip(v.confidence)}${v.suspicious?'<span class="susp">⚠ SOSPECHOSA</span>':''}<span class="chip">detectada ${ago(v.created_at)}</span></div>
+    </div><button class="icon-btn" data-close aria-label="Cerrar">✕</button></div>
+    <div class="ov-body">
+      ${v.suspicious?`<div class="warnbox"><span style="font-size:18px">⚠</span><div><b>Edge superior al ${pct(s.suspicious_edge,0)}.</b> Puede deberse a una línea errónea, una lesión, una retirada o datos desfasados. Verifica la cuota y las noticias antes de apostar; el stake se muestra solo como referencia.</div></div>`:''}
+      <div class="cols c2">
+        <div class="panel glass"><h3>Desglose de modelos</h3><p class="hint">Probabilidad de ${esc(v.selection)} por componente${pred&&pred.weights?' · pesos '+Object.entries(pred.weights).map(([k,w])=>`${({elo:'Elo',ml:'ML',monte_carlo:'MC',experts:'Exp.'})[k]||k} ${Math.round(num(w)*100)}%`).join(', '):''}.</p>${breakdownBars(bdSel, ensA, side, fairA, tc)}</div>
+        <div class="panel glass"><h3>Monte Carlo · marcador final</h3><p class="hint">${bd.monte_carlo&&bd.monte_carlo.iterations?bd.monte_carlo.iterations+' simulaciones':'Distribución simulada'} de ${tt?'juegos':'sets'} (${esc(v.player_a.split(' ').slice(-1)[0])} – ${esc(v.player_b.split(' ').slice(-1)[0])}).</p>
+          <div class="mcdist">${distRows.length?distRows.map(([k,p])=>{ const [x,y]=k.split('-').map(Number); const selWin = side==='a'?x>y:y>x; return `<div class="brow"><span class="bn mono">${esc(k)}</span><span class="bt" style="--c:${selWin?tc:mc}"><i style="width:${(p/mxd*100).toFixed(1)}%"></i></span><span class="bv">${pct(p)}</span></div>`; }).join(''):'<p class="hint">Sin distribución disponible.</p>'}</div></div>
+      </div>
+      <div class="panel glass"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>Historial de probabilidad · ${esc(v.selection)}</h3><div class="legend"><span><i style="background:${tc}"></i>Modelo</span><span style="color:${mc}"><i class="dash" style="background:${mc}"></i>Mercado</span></div></div>
+        ${lineChart([{label:'Modelo',values:ph.map(p=>conv(p.model_a)),color:tc,area:true},{label:'Mercado',values:ph.map(p=>conv(p.implied_a)),color:mc,dash:true}],{min:0,max:1,ticks:[0,.25,.5,.75,1],midLine:.5,yFmt:x=>Math.round(x*100)+'%',h:190,xLabels:i=>ph[i]?timeHM(ph[i].t):''})}</div>
+      <div class="cols c2">
+        <div class="panel glass"><h3>Por qué es value</h3><ul class="explain" style="margin-top:12px">${expl.map(e=>`<li class="${/⚠|sospech/i.test(e)?'w':''}">${e}</li>`).join('')}</ul></div>
+        <div class="panel glass"><h3>Calculadora Kelly</h3><p class="hint">Ajusta los valores para recalcular el stake.</p>
+          <div class="calc"><label>Bankroll €<input id="kcBank" type="number" step="10" value="${s.bankroll}"></label><label>Cuota<input id="kcOdds" type="number" step="0.01" value="${odd(v.odds)}"></label><label>Prob. %<input id="kcP" type="number" step="0.1" value="${(v.model_prob*100).toFixed(1)}"></label>
+            <label>Fracción<select id="kcF">${[[0.25,'¼ Kelly'],[0.5,'½ Kelly'],[0.75,'¾ Kelly'],[1,'Kelly']].map(([f,l])=>`<option value="${f}" ${f===s.kelly_fraction?'selected':''}>${l}</option>`).join('')}${[0.25,0.5,0.75,1].includes(s.kelly_fraction)?'':`<option value="${s.kelly_fraction}" selected>×${s.kelly_fraction}</option>`}</select></label></div>
+          <div class="calc-out" id="kcOut"></div></div>
+      </div>
+    </div>`;
+  const calc = () => {
+    const B=num($('#kcBank').value)||0, o=num($('#kcOdds').value)||0, p=clamp((num($('#kcP').value)||0)/100,0,1), f=num($('#kcF').value)||0.5;
+    const e=Value.edge(p,o), k=Value.kelly(p,o), st=Value.stake(B,k,f,s.max_stake_pct);
+    $('#kcOut').innerHTML = `<div><span>Edge</span><b class="${e>0?'pos':'neg'}">${spct(e)}</b></div><div><span>Kelly f*</span><b>${pct(Math.max(k,0))}</b></div><div><span>Stake</span><b style="color:${tc}">${eur(st)}</b></div><div><span>EV</span><b class="${e>0?'pos':'neg'}">${eur(st*(e||0))}</b></div>`;
+  };
+  ['kcBank','kcOdds','kcP','kcF'].forEach(i=>$('#'+i).addEventListener('input',calc)); calc();
+}
+function closeAll(){
+  S.drawerId=null; S.modalBet=null; $('#overlay').classList.remove('open');
+  ['#drawer','#modal'].forEach(s=>{ const e=$(s); e.classList.remove('open'); e.setAttribute('aria-hidden','true'); });
+}
+
+/* =========================================================
+   Settings UI
+   ========================================================= */
+function syncSettingsUI(){
+  const s=S.settings;
+  $('#sBank').value = s.bankroll; $('#sKelly').value=s.kelly_fraction; $('#sMax').value=s.max_stake_pct;
+  $('#sTen').value=s.min_edge_tennis; $('#sTT').value=s.min_edge_tt; $('#sSus').value=s.suspicious_edge;
+  $('#swTen').checked=!!s.sports.tennis; $('#swTT').checked=!!s.sports.table_tennis;
+  $('#oKelly').textContent = s.kelly_fraction.toFixed(2).replace('.',',') + (s.kelly_fraction===0.5?' · Half-Kelly':'');
+  $('#oMax').textContent = pct(s.max_stake_pct); $('#oTen').textContent=pct(s.min_edge_tennis,2); $('#oTT').textContent=pct(s.min_edge_tt,2); $('#oSus').textContent=pct(s.suspicious_edge,1);
+  $$('#presets .preset').forEach(b=>b.classList.toggle('on', b.dataset.p===s.risk_profile));
+}
+function readSettingsUI(){
+  const s=S.settings;
+  s.bankroll = Math.max(10, num($('#sBank').value)||s.bankroll); s.kelly_fraction=num($('#sKelly').value); s.max_stake_pct=num($('#sMax').value);
+  s.min_edge_tennis=num($('#sTen').value); s.min_edge_tt=num($('#sTT').value); s.suspicious_edge=num($('#sSus').value);
+  s.sports={tennis:$('#swTen').checked, table_tennis:$('#swTT').checked};
+  const p = Object.entries(PRESETS).find(([k,v])=>Object.entries(v).every(([kk,vv])=>Math.abs(s[kk]-vv)<1e-9));
+  s.risk_profile = p ? p[0] : 'personalizado';
+}
+function settingsChanged(){
+  syncSettingsUI();
+  if(S.mode==='demo') refreshDemoDerived();
+  else S.vbs = S.vbs.map(v=>({...v, stake:Value.stake(S.settings.bankroll, v.kelly_full, S.settings.kelly_fraction, S.settings.max_stake_pct)}));
+  renderAll();
+}
+async function saveSettings(){
+  store.set('settings', S.settings);
+  const note=$('#saveNote');
+  if(S.mode==='live'){
+    try{ const r = await getJSON('/api/settings', 5000, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...S.settings, sports:Object.keys(S.settings.sports).filter(k=>S.settings.sports[k])})});
+      if(r && typeof r==='object') S.settings = normSettings({...S.settings, ...r}); note.textContent='Guardado en el servidor ✓'; note.style.color='var(--pos)'; }
+    catch(e){ note.textContent='Guardado localmente; el servidor no respondió.'; note.style.color='var(--warn)'; }
+  } else { note.textContent='Guardado en este navegador ✓'; note.style.color='var(--pos)'; }
+  toast('Ajustes guardados', `Bankroll ${eur(S.settings.bankroll,0)} · Kelly ×${S.settings.kelly_fraction} · perfil ${S.settings.risk_profile}`, 'tn');
+  settingsChanged();
+}
+
+/* =========================================================
+   Events
+   ========================================================= */
+function setTab(t){
+  if(!['live','value','experts','perf','settings'].includes(t)) t='live';
+  S.tab=t; store.set('tab',t);
+  $$('#tabs .tab').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===t)));
+  $$('section.view').forEach(s=>s.classList.toggle('on', s.id==='v-'+t));
+  if(t==='settings'){ syncSettingsUI(); renderSources(); }
+  renderAll();
+}
+$('#tabs').addEventListener('click', e=>{ const b=e.target.closest('.tab'); if(b) setTab(b.dataset.tab); });
+$('#fSport').addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b) return; S.filters.sport=b.dataset.v; $$('#fSport button').forEach(x=>x.classList.toggle('on',x===b)); renderMatches(); });
+$('#fStatus').addEventListener('change', e=>{ S.filters.status=e.target.value; renderMatches(); });
+$('#fCat').addEventListener('change', e=>{ S.filters.cat=e.target.value; renderMatches(); });
+$('#fQ').addEventListener('input', e=>{ S.filters.q=e.target.value; renderMatches(); });
+document.addEventListener('click', e=>{
+  const vb = e.target.closest('[data-vb]'); if(vb){ e.stopPropagation(); if($('#drawer').classList.contains('open')){ S.drawerId=null; $('#drawer').classList.remove('open'); } openModal(vb.dataset.vb); return; }
+  if(e.target.closest('[data-close]') || e.target.id==='overlay'){ closeAll(); return; }
+  const card = e.target.closest('.mcard'); if(card) openDrawer(card.dataset.mid);
+});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') closeAll();
+  if((e.key==='Enter'||e.key===' ') && e.target.classList && e.target.classList.contains('mcard')){ e.preventDefault(); openDrawer(e.target.dataset.mid); }
+});
+['sBank','sKelly','sMax','sTen','sTT','sSus','swTen','swTT'].forEach(id=>$('#'+id).addEventListener('input', ()=>{ readSettingsUI(); settingsChanged(); }));
+$('#presets').addEventListener('click', e=>{ const b=e.target.closest('.preset'); if(!b) return; Object.assign(S.settings, PRESETS[b.dataset.p], {risk_profile:b.dataset.p}); settingsChanged(); });
+$('#saveSettings').addEventListener('click', saveSettings);
+$('#resetSettings').addEventListener('click', ()=>{ S.settings = normSettings(DEFAULT_SETTINGS); store.set('settings', S.settings); $('#saveNote').textContent='Valores por defecto restaurados'; $('#saveNote').style.color='var(--muted)'; settingsChanged(); });
+// theme
+function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); store.set('theme', t);
+  $('#themeIco').innerHTML = t==='dark' ? '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>' : '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+  if(S.mode!=='init') renderAll(); }
+$('#themeBtn').addEventListener('click', ()=> applyTheme(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light'));
+// clock
+function tickClock(){ const d=new Date(); $('#clock').innerHTML = `<span class="dt">${d.toLocaleDateString('es-ES',{weekday:'short',day:'2-digit',month:'short'})} · </span><b>${d.toLocaleTimeString('es-ES')}</b>`; }
+setInterval(tickClock, 1000); tickClock();
+
+/* =========================================================
+   Boot
+   ========================================================= */
+async function boot(){
+  applyTheme(store.get('theme','dark'));
+  const isLive = await detectMode();
+  if(isLive){
+    setMode('live');
+    await liveLoad(true);
+    connectWS();
+    setInterval(()=>liveLoad(false).catch(()=>{}), (ws && ws.readyState===1) ? 15000 : 6000);
+    setInterval(async ()=>{ try{ const [e,s] = await Promise.all([getJSON('/api/experts'), getJSON('/api/stats')]); S.experts=arr(e); if(s&&typeof s==='object') S.stats=s; if(S.tab==='experts'||S.tab==='perf') renderAll(); }catch(err){} }, 30000);
+  } else {
+    setMode('demo');
+    Sim.init();
+    S.experts = Sim.experts(); S.stats = Sim.stats(S.settings);
+    demoStep(); trackOdds();
+    setTab(S.tab);
+    setInterval(()=>{ demoStep(); renderAll(); }, 2500);
+    setInterval(()=>{ S.experts = Sim.experts(); }, 30000);
+    // first welcome toast for the top value bet after load
+    setTimeout(()=>{ const top = sortedVBs()[0]; if(top) notifyVB(top); }, 1800);
+    return;
+  }
+  setTab(S.tab);
+}
+boot();
+})();
+</script>
+</body>
+</html>
