@@ -28,3 +28,5 @@ android/.idea/
 *.iml
 .DS_Store
 pc/logs/
+pc/zcode/
+pc/.zcode_state.json

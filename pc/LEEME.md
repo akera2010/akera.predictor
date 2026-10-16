@@ -75,3 +75,14 @@ systemctl --user enable --now akeraten
 | "Buscar mi PC" no lo encuentra | Algunas Wi-Fi de invitados aíslan dispositivos: usa la red principal o `--tunnel` |
 | Puerto ocupado | `INICIAR_AKERATEN.bat --port 8080` y pon ese puerto en la URL de la app |
 | No arranca | Mira `pc/logs/backend.log` |
+
+## ZCode System (sesión automática)
+
+1. En el archivo `.env` de tu PC rellena `ZCODE_USERNAME` y `ZCODE_PASSWORD`. Ese archivo no se sube nunca a GitHub.
+2. Una vez: `.venv\Scripts\python -m pip install playwright` y `.venv\Scripts\python -m playwright install chromium`.
+3. Primera vez, viendo el navegador: `.venv\Scripts\python pc\zcode_sesion.py --visible`
+4. En bucle cada 30 min: `.venv\Scripts\python pc\zcode_sesion.py --bucle 30`
+
+Guarda la sesión (no repite el login) y descarga las páginas en `pc/zcode/` (HTML + captura).
+Todavía no extrae los pronósticos: falta ver la estructura real de las páginas una vez dentro.
+Es para uso personal de tu suscripción; respeta las condiciones de ZCode.
