@@ -1,0 +1,69 @@
+{
+  "source": "synthetic",
+  "years": [
+    2015,
+    2024
+  ],
+  "test_year": 2024,
+  "val_year": 2023,
+  "n_matches": 62420,
+  "selected_model": "logistic",
+  "results": {
+    "elo_baseline": {
+      "val": {
+        "n": 6242,
+        "accuracy": 0.6463,
+        "log_loss": 0.6301,
+        "brier": 0.22
+      },
+      "test": {
+        "n": 6242,
+        "accuracy": 0.6528,
+        "log_loss": 0.6177,
+        "brier": 0.2146
+      }
+    },
+    "logistic": {
+      "val": {
+        "n": 6242,
+        "accuracy": 0.6506,
+        "log_loss": 0.62,
+        "brier": 0.2159
+      },
+      "test": {
+        "n": 6242,
+        "accuracy": 0.6596,
+        "log_loss": 0.6127,
+        "brier": 0.2125
+      }
+    },
+    "hist_gradient_boosting": {
+      "val": {
+        "n": 6242,
+        "accuracy": 0.6517,
+        "log_loss": 0.6208,
+        "brier": 0.2163
+      },
+      "test": {
+        "n": 6242,
+        "accuracy": 0.6594,
+        "log_loss": 0.6127,
+        "brier": 0.2125
+      }
+    }
+  },
+  "created": "2026-10-14T16:23:33Z",
+  "features": [
+    "elo_diff",
+    "surface_elo_diff",
+    "log_rank_ratio",
+    "form_diff",
+    "h2h_diff",
+    "fatigue_diff",
+    "serve_diff",
+    "return_diff",
+    "bo5_elo_diff"
+  ],
+  "n_players_saved": 340,
+  "n_h2h_pairs": 6000
+}

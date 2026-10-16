@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Table tennis paddle (behind the ball) -->
+    <path
+        android:fillColor="#FFB86B2E"
+        android:pathData="M68,73L72,69L80,77L76,81Z" />
+    <path
+        android:fillColor="#FFFF8A00"
+        android:pathData="M54,64a12,12 0,1 0,24 0a12,12 0,1 0,-24 0" />
+    <path
+        android:fillColor="#FFFF5A1F"
+        android:pathData="M58,64a8,8 0,1 0,16 0a8,8 0,1 0,-16 0" />
+    <!-- Tennis ball -->
+    <path
+        android:fillColor="#FFC6FF00"
+        android:pathData="M28,48a20,20 0,1 0,40 0a20,20 0,1 0,-40 0" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:pathData="M33.5,34C40.5,41 40.5,55 33.5,62" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:pathData="M62.5,34C55.5,41 55.5,55 62.5,62" />
+    <!-- small cyan ping-pong ball -->
+    <path
+        android:fillColor="#FF00E5FF"
+        android:pathData="M72,40a4,4 0,1 0,8 0a4,4 0,1 0,-8 0" />
+</vector>

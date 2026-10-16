@@ -1,0 +1,5 @@
+0.1.0 (versionCode 1)
+• Primera versión pública de AKERATEN v.0.1.
+• En Vivo con WebSocket, detalle de partido, Value Bets, análisis de modelos, Expertos y Ajustes.
+• Stake con Kelly fraccional, avisos de apuestas sospechosas y notificaciones locales (edge > 5 %).
+• Modo demo sin conexión.

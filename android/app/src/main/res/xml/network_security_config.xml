@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The backend usually runs on the user's own PC at a private LAN address (http://192.168.x.x:8000),
+  and Android cannot whitelist IP ranges, so plain http/ws is allowed. The app holds no secrets:
+  API keys live only on the PC. For access outside home, use the https tunnel (the tunnel option of pc/run_pc.py).
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

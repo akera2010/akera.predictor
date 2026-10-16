@@ -1,0 +1,13 @@
+[
+  {
+    "name": "example_disabled_feed",
+    "base_url": "https://example.invalid/api/live",
+    "sport": ["tennis"],
+    "rate_limit": 10,
+    "auth": {"type": "header", "name": "X-API-Key", "env": "EXAMPLE_FEED_KEY"},
+    "items_path": "data",
+    "mapping": {"match_id": "id", "player_a": "home.name", "player_b": "away.name", "tournament": "league",
+                "status": "status", "sets": "score.sets", "points": "score.points",
+                "odds_a": "odds.home", "odds_b": "odds.away"}
+  }
+]

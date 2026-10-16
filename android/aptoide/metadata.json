@@ -1,0 +1,24 @@
+{
+  "app_name": "AKERATEN v.0.1",
+  "package": "com.akeraten.valuebetmonitor",
+  "version_name": "0.1.0",
+  "version_code": 1,
+  "author": "Sandra Blanco (España | 2026)",
+  "category": "Deportes",
+  "category_en": "Sports",
+  "content_rating": "18+",
+  "default_language": "es-ES",
+  "languages": ["es-ES", "en-US"],
+  "min_sdk": 26,
+  "target_sdk": 35,
+  "permissions": [
+    "android.permission.INTERNET",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.POST_NOTIFICATIONS"
+  ],
+  "keywords_es": ["tenis", "tenis de mesa", "ping pong", "value bet", "apuestas de valor", "cuotas", "probabilidad", "Kelly", "ATP", "WTA", "WTT", "ITTF", "estadísticas", "en vivo"],
+  "keywords_en": ["tennis", "table tennis", "ping pong", "value betting", "odds", "probability", "Kelly criterion", "ATP", "WTA", "WTT", "ITTF", "sports analytics", "live scores"],
+  "contains_ads": false,
+  "in_app_purchases": false,
+  "privacy_policy_file": "privacy-policy.md"
+}

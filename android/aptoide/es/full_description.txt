@@ -1,0 +1,19 @@
+AKERATEN v.0.1 es un monitor de "value betting" para tenis (ATP, WTA, Challenger, ITF) y tenis de mesa (WTT, ITTF) creado por Sandra Blanco (España | 2026).
+
+La app compara la probabilidad estimada por un ensemble de modelos con la probabilidad implícita en las cuotas y te muestra, en tiempo real, dónde existe ventaja (edge) estadística.
+
+QUÉ INCLUYE
+• En Vivo: marcadores en tiempo real vía WebSocket (sets, juegos, puntos, saque), banderas, filtros por deporte, estado y torneo, y barras de probabilidad del modelo frente al mercado.
+• Detalle de partido: gráfico de evolución de probabilidad (modelo vs cuota), H2H, forma reciente, estadísticas y distribución de marcadores por Monte Carlo.
+• Value Bets: lista priorizada por edge con cuota, probabilidad del modelo, stake sugerido con Kelly fraccional (Half-Kelly), nivel de confianza y aviso de apuestas "SOSPECHOSAS".
+• Análisis completo: desglose Elo, Machine Learning, Monte Carlo, consenso de expertos y ensemble final, con explicación en lenguaje natural.
+• Expertos: tasa de acierto, peso en el modelo, CLV y últimos picks de cada experto seguido.
+• Ajustes: URL del backend, bankroll, umbrales de edge, fracción de Kelly, perfil de riesgo y panel de rendimiento (curva de bankroll, CLV medio, ROI simulado).
+• Notificaciones locales cuando aparece una oportunidad con edge superior al 5 %.
+• Modo demo sin conexión: la app es totalmente navegable aunque no haya servidor disponible (datos de ejemplo claramente etiquetados).
+
+IMPORTANTE
+AKERATEN es una herramienta informativa y de análisis estadístico. No acepta apuestas, no gestiona dinero y no está afiliada a ninguna casa de apuestas. Los modelos pueden equivocarse.
+
+Las apuestas conllevan riesgo. No se garantizan ganancias. +18. Juega con responsabilidad.
+Si necesitas ayuda, visita www.jugarbien.es (Dirección General de Ordenación del Juego).

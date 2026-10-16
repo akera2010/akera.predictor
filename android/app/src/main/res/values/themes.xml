@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Akeraten" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/akeraten_bg</item>
+        <item name="android:colorBackground">@color/akeraten_bg</item>
+        <item name="android:colorAccent">@color/akeraten_lime</item>
+        <item name="android:statusBarColor">@color/akeraten_bg</item>
+        <item name="android:navigationBarColor">@color/akeraten_bg</item>
+    </style>
+</resources>
