@@ -76,13 +76,39 @@ systemctl --user enable --now akeraten
 | Puerto ocupado | `INICIAR_AKERATEN.bat --port 8080` y pon ese puerto en la URL de la app |
 | No arranca | Mira `pc/logs/backend.log` |
 
-## ZCode System (sesión automática)
+## ZCode System en la app de Claude
 
-1. En el archivo `.env` de tu PC rellena `ZCODE_USERNAME` y `ZCODE_PASSWORD`. Ese archivo no se sube nunca a GitHub.
-2. Una vez: `.venv\Scripts\python -m pip install playwright` y `.venv\Scripts\python -m playwright install chromium`.
-3. Primera vez, viendo el navegador: `.venv\Scripts\python pc\zcode_sesion.py --visible`
-4. En bucle cada 30 min: `.venv\Scripts\python pc\zcode_sesion.py --bucle 30`
+Un servidor MCP (`pc/zcode_mcp.py`) que corre en tu PC permite que Claude Desktop o Claude Code
+entren en tu suscripción y lean su contenido. Tus credenciales se quedan en el `.env` de tu PC.
 
-Guarda la sesión (no repite el login) y descarga las páginas en `pc/zcode/` (HTML + captura).
-Todavía no extrae los pronósticos: falta ver la estructura real de las páginas una vez dentro.
-Es para uso personal de tu suscripción; respeta las condiciones de ZCode.
+**Instalación (una vez), desde la carpeta `akera.predictor`:**
+
+```
+py pc\instalar_zcode_claude.py          (Windows)
+python3 pc/instalar_zcode_claude.py     (macOS / Linux)
+```
+
+El instalador:
+1. te pide usuario y contraseña de ZCode y los guarda en `.env` (la contraseña no se ve al escribir);
+2. instala Playwright, Chromium y el SDK de MCP en `.venv`;
+3. registra el servidor `zcode` en Claude Desktop y, si lo tienes, en Claude Code.
+
+Cierra Claude Desktop del todo y vuelve a abrirlo. Después puedes pedirle, por ejemplo:
+- «Usa zcode_leer_todo y resúmeme los pronósticos de tenis de hoy»
+- «Lee la página de picks de ZCode y compárala con las value bets de AKERATEN»
+- «Busca en ZCode todo lo que haya sobre Sinner»
+
+| Herramienta | Qué hace |
+|---|---|
+| `zcode_login` | Inicia sesión (o confirma que ya está iniciada) |
+| `zcode_leer_pagina` | Lee una página (por defecto el resumen del VIP Club): texto, tablas y enlaces |
+| `zcode_leer_todo` | Recorre el área de miembros (hasta 60 páginas, con pausa entre ellas) |
+| `zcode_buscar` | Busca un jugador, equipo o torneo en lo ya leído |
+
+Nunca sigue enlaces de cerrar sesión, pagos ni bajas. Si ZCode pide captcha, entra una vez con
+`.venv\Scripts\python pc\zcode_sesion.py --visible`; la sesión queda guardada.
+
+**Sin Claude, desde la terminal:** `.venv\Scripts\python pc\zcode_sesion.py --todo` guarda todo en
+`pc/zcode/ultimo.md` (`--bucle 30` para repetir cada 30 min).
+
+Es para uso personal de tu suscripción: respeta las condiciones de ZCode y no compartas su contenido.
