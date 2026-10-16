@@ -13,6 +13,7 @@ import com.akeraten.valuebetmonitor.data.model.Prediction
 import com.akeraten.valuebetmonitor.data.model.Stats
 import com.akeraten.valuebetmonitor.data.model.ValueBet
 import com.akeraten.valuebetmonitor.data.model.WsMessage
+import com.akeraten.valuebetmonitor.data.remote.LanDiscovery
 import com.akeraten.valuebetmonitor.data.remote.LiveSocket
 import com.akeraten.valuebetmonitor.data.remote.Network
 import com.akeraten.valuebetmonitor.data.remote.SocketEvent
@@ -51,7 +52,11 @@ class Repository(
     private val settingsStore: SettingsStore,
     private val notifier: Notifier,
     private val scope: CoroutineScope,
+    private val discovery: LanDiscovery,
 ) {
+    private val _discovering = MutableStateFlow(false)
+    val discovering: StateFlow<Boolean> = _discovering.asStateFlow()
+
     private val _matches = MutableStateFlow<List<Match>>(emptyList())
     val matches: StateFlow<List<Match>> = _matches.asStateFlow()
 
@@ -96,7 +101,7 @@ class Repository(
 
     private suspend fun runLiveLoop(url: String) {
         _connection.value = ConnectionState.CONNECTING
-        refresh(url)
+        if (!refresh(url) && autoDiscover(url)) return
         var backoff = 2_000L
         while (currentCoroutineContext().isActive) {
             try {
@@ -118,7 +123,32 @@ class Repository(
                 if (_mode.value == DataMode.OFFLINE_DEMO) ConnectionState.OFFLINE else ConnectionState.REST_ONLY
             delay(backoff)
             backoff = min(backoff * 2, 30_000L)
-            refresh(url)
+            // Backend unreachable: look for the PC on the Wi-Fi (UDP beacon, a few seconds).
+            if (!refresh(url) && autoDiscover(url)) return
+        }
+    }
+
+    /**
+     * Listens briefly for the PC's LAN beacon. When a different, working backend is found it is
+     * saved as the base URL, which restarts [runLiveLoop] against it. Returns true in that case.
+     */
+    private suspend fun autoDiscover(current: String): Boolean {
+        val found = discovery.find(listenMillis = 3_000, scanSubnet = false) ?: return false
+        if (Network.normalizeBaseUrl(found) == Network.normalizeBaseUrl(current)) return false
+        settingsStore.setBaseUrl(found)
+        return true
+    }
+
+    /** Manual "Buscar mi PC": beacon first, then a full subnet scan. Returns the URL found, or null. */
+    suspend fun discoverPc(): String? {
+        _discovering.value = true
+        try {
+            val found = discovery.find(listenMillis = 4_000, scanSubnet = true) ?: return null
+            settingsStore.setBaseUrl(found)
+            reconnect()
+            return Network.normalizeBaseUrl(found)
+        } finally {
+            _discovering.value = false
         }
     }
 

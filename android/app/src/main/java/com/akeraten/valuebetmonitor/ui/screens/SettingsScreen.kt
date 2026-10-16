@@ -90,6 +90,7 @@ fun SettingsScreen(repository: Repository) {
     val prefs by repository.prefs.collectAsState()
     val health by repository.health.collectAsState()
     val mode by repository.mode.collectAsState()
+    val discovering by repository.discovering.collectAsState()
     val scope = rememberCoroutineScope()
 
     var urlText by remember(prefs.baseUrl) { mutableStateOf(prefs.baseUrl) }
@@ -160,6 +161,25 @@ fun SettingsScreen(repository: Repository) {
                     shape = RoundedCornerShape(12.dp),
                 ) { Text("Probar") }
             }
+            Spacer(Modifier.height(8.dp))
+            Button(
+                onClick = {
+                    scope.launch {
+                        message = "Buscando tu PC en la Wi-Fi…"
+                        val found = repository.discoverPc()
+                        message = if (found != null) {
+                            statsKey += 1
+                            "PC encontrado: $found"
+                        } else {
+                            "No encuentro el PC. Comprueba que INICIAR_AKERATEN está abierto y que el móvil está en la misma Wi-Fi."
+                        }
+                    }
+                },
+                enabled = !discovering,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Ak.Lime, contentColor = Color(0xFF111800)),
+                shape = RoundedCornerShape(12.dp),
+            ) { Text(if (discovering) "Buscando…" else "Buscar mi PC", fontWeight = FontWeight.Bold) }
             Spacer(Modifier.height(10.dp))
             val h = health
             Row(verticalAlignment = Alignment.CenterVertically) {

@@ -43,6 +43,13 @@ def health(request: Request):
             "database": database_url().split(":", 1)[0]}
 
 
+@router.get("/connect")
+def connect_info():
+    """Addresses at which phones on the same Wi-Fi can reach this backend."""
+    from ..discovery import DISCOVERY_PORT, beacon
+    return {**beacon(), "discovery_udp_port": DISCOVERY_PORT}
+
+
 @router.get("/matches")
 def matches(request: Request, sport: str | None = None, status: str | None = None, tournament: str | None = None,
             category: str | None = None):

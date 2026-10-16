@@ -16,6 +16,7 @@ from .api.routes import router
 from .api.ws import Broadcaster, message
 from .config import APP_NAME, AUTHOR, DISCLAIMER, env_bool, web_dir
 from .db import init_db
+from .discovery import Beacon
 from .engine import Engine
 from .scheduler.jobs import start_scheduler
 
@@ -33,8 +34,10 @@ async def lifespan(app: FastAPI):
     sch = None
     if not env_bool("AKERATEN_DISABLE_SCHEDULER"):
         sch = start_scheduler(engine, app.state.broadcaster)
+    beacon = Beacon().start()  # lets the Android app find this PC on the LAN
     log.info("%s started in %s mode", APP_NAME, "DEMO" if engine.demo else "LIVE")
     yield
+    beacon.stop()
     if sch:
         sch.shutdown(wait=False)
 

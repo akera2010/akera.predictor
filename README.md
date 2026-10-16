@@ -13,10 +13,15 @@ Monitor en tiempo real de partidos de **tenis** (ATP, WTA, Challenger, ITF) y **
 | [`backend/`](backend/README.md) | Python + FastAPI: ingesta de 8 APIs, expert tracker, modelos, value detector, scheduler, REST + WebSocket |
 | [`web/`](web/index.html) | Dashboard web (se sirve en `/` desde el backend, o funciona solo con simulador integrado) |
 | [`android/`](android/aptoide/PUBLISHING.md) | App Android Kotlin + Jetpack Compose (Material 3), lista para Aptoide |
+| [`pc/`](pc/LEEME.md) | Bucle para tu PC: arranca y vigila el backend, lo reinicia si cae y lo anuncia en la Wi-Fi para que la app lo encuentre sola |
 | `.mcp.json` | Servidores MCP de datos deportivos para Claude Code |
 | `.github/workflows/` | CI: tests + reentrenamiento con datos reales (backend), build de APK firmado (Android) |
 
 ## Arranque rápido
+
+**En tu PC (recomendado):** doble clic en `pc\INICIAR_AKERATEN.bat` (Windows) o `./pc/iniciar_akeraten.sh` (macOS/Linux). En la app: **Ajustes → Buscar mi PC**. Detalles en [`pc/LEEME.md`](pc/LEEME.md).
+
+Manual:
 
 ```bash
 cp .env.example .env            # añade tus claves (sin claves = modo DEMO)
